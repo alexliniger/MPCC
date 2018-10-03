@@ -5,12 +5,16 @@ Simulation environment of the Model Predictive Contouring Controller (MPCC) for 
 
 The MPCC is a model predictive path following controller which does follow a predefined reference path X^ref and Y^ref. This is achieved by augmenting the system with an integrator stated theta which approximates the progress along the reference path. The theta state is coupled to the real dynamics using the lag error e^l which is penalized in the cost. Additionally, the contouring error (lateral error to the reference path) is also penalized in the cost function. Finally, the progress along the reference path is maximized to achieve that the car does follow the path as fast as possible and the rate of the inputs is penalized. To guarantee that the car stays within the track, track constraints are imposed as well as bounds on all states, inputs and the rate of inputs. The resulting optimization problem is shown in the following equation:
 <img src="https://github.com/alexliniger/MPCC/blob/master/Images/MPCC_problem.jpg" width="700" />
+
 The vehicle dynamics considered is a bicycle model with nonlinear magic formula tire models:
 <img src="https://github.com/alexliniger/MPCC/blob/master/Images/Model.jpg" width="700" />
+
 with the tire model and drive train model given as follows:
 <img src="https://github.com/alexliniger/MPCC/blob/master/Images/TireModel.jpg" width="700" />
+
 Finally, the state and inputs of the problem are given as follows:
 <img src="https://github.com/alexliniger/MPCC/blob/master/Images/state-input.jpg" width="700" />
+
 Where (X,Y) is the global position phi the heading of the car, v_x and v_y the longitudinal respectively the lateral velocity and omega the yaw rate. Theta is the augmented state which approximates the progress. The inputs are the duty cycle d to the drive train, the steering angle delta and the velocity along the reference path v_theta (which is an approximation of the velocities projected onto the path)
 
 To achieve obstacle avoidance of other cars, before solving the MPCC problem grid search 1-D dynamic programming approach finds the best way to avoid the obstacles. This path is then converted into a corridor which modifies the track constraint. 
