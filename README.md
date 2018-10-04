@@ -23,6 +23,21 @@ Finally, to solve the MPCC problem, we approximate the nonlinear problem as a ti
 
 For more details see our paper [Optimization‐based autonomous racing of 1:43 scale RC cars](https://onlinelibrary.wiley.com/doi/abs/10.1002/oca.2123) or the [Arxiv](https://arxiv.org/abs/1711.07300) version.
 
+## How to run
+
+### Before running code
+1) Install [hpipm](https://github.com/giaf/hpipm) including the python interface
+2) alternativly install Yalmip or CVX
+### Run code
+0) in simulation.m change to the optimization framework you use (hpipm, Yalmip, CVX)
+1) run simulation.m
+2) play with the tunning in getMPC_vars.m
+3) change the car model between FullSize and ORCA
+4) change the track layout between the ORCA and the RCP track
+
+### Notes
+1) If you use the RCP track the obstacle postions need to be changed by hand
+
 ## Options
 
 Beside the 1:43 RC cars, we also implemented a full sized car model as well as two possible tracks.
