@@ -55,7 +55,8 @@ DesignParameters.grid_width = 12; % track width is split into grid_width+1 equal
 DesignParameters.carwidth =  ModelParams.W*2; %[m]
 DesignParameters.carlength = ModelParams.L*2; %[m] 
 
-DesignParameters.thetadifferencethreshold=3.0; %[m] (used by CarIsClose() )
+lookahead = X_all(MPC_vars.N*ModelParams.nx+ModelParams.stateindex_theta,1) - X_all(ModelParams.stateindex_theta,1);
+DesignParameters.thetadifferencethreshold=lookahead*1.25; %[m] (used by CarIsClose() )
 DesignParameters.Cost_dead_end = 5000;
 DesignParameters.Cost_maxanglechange = 2000; % cost when maxanglechange is exceeded. Choose a cost that is greater than Cost_dead_end. used in getCost_AngleChange()%
 DesignParameters.Cost_Weights = [0.5 3 0.5]; % [deviation length anglechange]

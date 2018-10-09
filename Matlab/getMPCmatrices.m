@@ -61,7 +61,7 @@ Xk = Xhor(:,i);
 % generate quadratic state(-input) cost
 stage(i).Qk = costScale*generateH(traj,MPC_vars,ModelParams,Xk,i);
 % quadratic rate input cost 
-stage(i).Rk = costScale*2*diag([MPC_vars.rD; MPC_vars.rDelta; MPC_vars.rVtheta]);
+stage(i).Rk = costScale*2*diag([MPC_vars.rdD; MPC_vars.rdDelta; MPC_vars.rdVtheta]);
 % linear state(-input) cost
 stage(i).fk = costScale*generatef(traj,MPC_vars,ModelParams,Xk,i);
 % linearized track constraints
@@ -78,6 +78,9 @@ elseif MPC_vars.interface == "CVX"
 elseif MPC_vars.interface == "hpipm"
     % hpipm interface (prefered)
     [X,U,dU,info] = hpipmInterface(stage,MPC_vars,ModelParams);
+elseif MPC_vars.interface == "quadprog"
+    % quadprog interface (replace quadprog with a better solver if possible)
+    [X,U,dU,info] = QuadProgInterface(stage,MPC_vars,ModelParams);
 else
     error('invalid optimization interface')
 end
