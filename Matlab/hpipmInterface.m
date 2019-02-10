@@ -25,53 +25,53 @@ N = MPC_vars.N;
 
 dims = hpipm_ocp_qp_dim(N);
 
-dims.set_nx((nx+nu)*ones(1,N+1));
-dims.set_nu(nu*ones(1,N));
+dims.set('nx',(nx+nu)*ones(1,N+1));
+dims.set('nu',nu*ones(1,N));
 
-dims.set_nbx((nx+nu)*ones(1,N+1));
-dims.set_nbu(nu*ones(1,N));
+dims.set('nbx',(nx+nu)*ones(1,N+1));
+dims.set('nbu',nu*ones(1,N));
 
-dims.set_ng([0,1*ones(1,N)]);
+dims.set('ng',[0,1*ones(1,N)]);
 
 % qp
 qp = hpipm_ocp_qp(dims);
 %% Equility Constraints
 x0 = blkdiag(MPC_vars.Tx,MPC_vars.Tu)*[stage(1).x0;stage(1).u0];
 for i = 0:N-1
-   qp.set_A(stage(i+1).Ak,i); 
-   qp.set_B(stage(i+1).Bk,i); 
-   qp.set_b(stage(i+1).gk,i); 
+   qp.set('A',stage(i+1).Ak,i); 
+   qp.set('B',stage(i+1).Bk,i); 
+   qp.set('b',stage(i+1).gk,i); 
 end
 
 %% Cost
 for i = 0:N
-    qp.set_Q(stage(i+1).Qk,i);
-    qp.set_q(stage(i+1).fk,i);
+    qp.set('Q',stage(i+1).Qk,i);
+    qp.set('q',stage(i+1).fk,i);
     if i<N
-        qp.set_R(stage(i+1).Rk,i); 
+        qp.set('R',stage(i+1).Rk,i); 
     end
 end
 %% Constraints
 for i = 1:N
-    qp.set_C(stage(i+1).Ck,i);
-    qp.set_lg(stage(i+1).lg,i); 
-    qp.set_ug(stage(i+1).ug,i); 
+    qp.set('C',stage(i+1).Ck,i);
+    qp.set('lg',stage(i+1).lg,i); 
+    qp.set('ug',stage(i+1).ug,i); 
 end
 %% Bounds
 for i = 0:N
-    qp.set_Jx(eye(nx+nu),i)
+    qp.set('Jx',eye(nx+nu),i)
     if i == 0
-        qp.set_lx(x0,0)
-        qp.set_ux(x0,0)
+        qp.set('lx',x0,0)
+        qp.set('ux',x0,0)
     else
-        qp.set_lx(stage(i+1).lb(1:nx+nu),i)
-        qp.set_ux(stage(i+1).ub(1:nx+nu),i)
+        qp.set('lx',stage(i+1).lb(1:nx+nu),i)
+        qp.set('ux',stage(i+1).ub(1:nx+nu),i)
     end
     
     if i<N
-        qp.set_Ju(eye(nu),i)
-        qp.set_lu(stage(i+1).lb(nx+nu+1:end),i)
-        qp.set_uu(stage(i+1).ub(nx+nu+1:end),i)
+        qp.set('Ju',eye(nu),i)
+        qp.set('lu',stage(i+1).lb(nx+nu+1:end),i)
+        qp.set('uu',stage(i+1).ub(nx+nu+1:end),i)
     end
 end
     
