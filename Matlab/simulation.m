@@ -14,9 +14,9 @@
 clear
 close all
 clc
+
 %% add spline library
 addpath('splines');
-addpath('~/Documents/GitHub/hpipm/interfaces/matlab/hpipm_matlab')
 %% Load Parameters
 CarModel = 'ORCA';
 % CarModel = 'FullSize';
@@ -25,6 +25,7 @@ MPC_vars = getMPC_vars(CarModel);
 ModelParams=getModelParams(MPC_vars.ModelNo);
 % choose optimization interface options: 'Yalmip','CVX','hpipm','quadprog'
 MPC_vars.interface = 'hpipm';
+
 
 nx = ModelParams.nx;
 nu = ModelParams.nu;
