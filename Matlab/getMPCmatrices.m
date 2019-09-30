@@ -69,16 +69,16 @@ stage(i).fk = costScale*generatef(traj,MPC_vars,ModelParams,Xk,i);
 % bounds
 [stage(i).lb, stage(i).ub] = getBounds(MPC_vars,ModelParams);
 %% Call solver interface
-if MPC_vars.interface == "Yalmip"
+if strcmp(MPC_vars.interface, 'Yalmip')
     % yalmip based interface (very slow)
     [X,U,dU,info] = YalmipInterface(stage,MPC_vars,ModelParams);
-elseif MPC_vars.interface == "CVX"
+elseif strcmp(MPC_vars.interface, 'CVX')
     % CVX based interface (slow)
     [X,U,dU,info] = CVXInterface(stage,MPC_vars,ModelParams);
-elseif MPC_vars.interface == "hpipm"
+elseif strcmp(MPC_vars.interface, 'hpipm')
     % hpipm interface (prefered)
     [X,U,dU,info] = hpipmInterface(stage,MPC_vars,ModelParams);
-elseif MPC_vars.interface == "quadprog"
+elseif strcmp(MPC_vars.interface, 'quadprog')
     % quadprog interface (replace quadprog with a better solver if possible)
     [X,U,dU,info] = QuadProgInterface(stage,MPC_vars,ModelParams);
 else

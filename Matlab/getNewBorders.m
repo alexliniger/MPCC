@@ -935,11 +935,12 @@ function [in] = inpoly(points,vertices)
 
 % determinse whether a point is inside the polytop given by the vertices
 n = length(points);
-CorrectSum = sum(convhull(vertices));
+CorrectSum = sum(convhull(vertices(:,1),vertices(:,2)));
 in = false(n,1);
 for i = 1:n
     
-    if sum(convhull([vertices;points(i,:)])) == CorrectSum
+	tmp_vertices = [vertices;points(i,:)];
+    if sum(convhull(tmp_vertices(:,1),tmp_vertices(:,2))) == CorrectSum
         in(i) = 1;
     else
         in(i) = 0;
