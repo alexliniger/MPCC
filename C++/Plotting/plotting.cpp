@@ -16,7 +16,7 @@
 
 #include "plotting.h"
 namespace mpcc{
-void Plotting::plotRun(const std::vector<MPCReturn> &log, const TrackPos &track_xy) const
+void Plotting::plotRun(const std::list<MPCReturn> &log, const TrackPos &track_xy) const
 {
 
     std::vector<double> plot_xc(track_xy.X.data(),track_xy.X.data() + track_xy.X.size());
@@ -41,22 +41,23 @@ void Plotting::plotRun(const std::vector<MPCReturn> &log, const TrackPos &track_
     std::vector<double> plot_dd;
     std::vector<double> plot_ddelta;
     std::vector<double> plot_dvs;
-    for(int i = 0;i<log.size();i++)
+//    for(int i = 0;i<log.size();i++)
+    for(MPCReturn log_i : log)
     {
-        plot_x.push_back(log[i].mpc_horizon[0].xk.X);
-        plot_y.push_back(log[i].mpc_horizon[0].xk.Y);
-        plot_phi.push_back(log[i].mpc_horizon[0].xk.phi);
-        plot_vx.push_back(log[i].mpc_horizon[0].xk.vx);
-        plot_vy.push_back(log[i].mpc_horizon[0].xk.vy);
-        plot_r.push_back(log[i].mpc_horizon[0].xk.r);
-        plot_s.push_back(log[i].mpc_horizon[0].xk.s);
-        plot_d.push_back(log[i].mpc_horizon[0].xk.D);
-        plot_delta.push_back(log[i].mpc_horizon[0].xk.delta);
-        plot_vs.push_back(log[i].mpc_horizon[0].xk.vs);
+        plot_x.push_back(log_i.mpc_horizon[0].xk.X);
+        plot_y.push_back(log_i.mpc_horizon[0].xk.Y);
+        plot_phi.push_back(log_i.mpc_horizon[0].xk.phi);
+        plot_vx.push_back(log_i.mpc_horizon[0].xk.vx);
+        plot_vy.push_back(log_i.mpc_horizon[0].xk.vy);
+        plot_r.push_back(log_i.mpc_horizon[0].xk.r);
+        plot_s.push_back(log_i.mpc_horizon[0].xk.s);
+        plot_d.push_back(log_i.mpc_horizon[0].xk.D);
+        plot_delta.push_back(log_i.mpc_horizon[0].xk.delta);
+        plot_vs.push_back(log_i.mpc_horizon[0].xk.vs);
 
-        plot_dd.push_back(log[i].mpc_horizon[0].uk.dD);
-        plot_ddelta.push_back(log[i].mpc_horizon[0].uk.dDelta);
-        plot_dvs.push_back(log[i].mpc_horizon[0].uk.dVs);
+        plot_dd.push_back(log_i.mpc_horizon[0].uk.dD);
+        plot_ddelta.push_back(log_i.mpc_horizon[0].uk.dDelta);
+        plot_dvs.push_back(log_i.mpc_horizon[0].uk.dVs);
     }
 
     plt::figure(1);
@@ -96,10 +97,13 @@ void Plotting::plotRun(const std::vector<MPCReturn> &log, const TrackPos &track_
     plt::subplot(3,1,3);
     plt::plot(plot_dvs);
 
+    // plt::figure(5);
+    // plt::plot(plot_s);
+
     plt::show();
 
 }
-void Plotting::plotSim(const std::vector<MPCReturn> &log, const TrackPos &track_xy) const
+void Plotting::plotSim(const std::list<MPCReturn> &log, const TrackPos &track_xy) const
 {
     std::vector<double> plot_xc(track_xy.X.data(),track_xy.X.data() + track_xy.X.size());
     std::vector<double> plot_yc(track_xy.Y.data(),track_xy.Y.data() + track_xy.Y.size());
@@ -112,20 +116,21 @@ void Plotting::plotSim(const std::vector<MPCReturn> &log, const TrackPos &track_
 
     std::vector<double> plot_x;
     std::vector<double> plot_y;
-    for(int i = 0;i < log.size();i++)
+//    for(int i = 0;i < log.size();i++)
+    for(MPCReturn log_i : log)
     {
         plot_x.resize(0);
         plot_y.resize(0);
-        for(int j=0;j<log[i].mpc_horizon.size();j++)
+        for(int j=0;j<log_i.mpc_horizon.size();j++)
         {
-            plot_x.push_back(log[i].mpc_horizon[j].xk.X);
-            plot_y.push_back(log[i].mpc_horizon[j].xk.Y);
+            plot_x.push_back(log_i.mpc_horizon[j].xk.X);
+            plot_y.push_back(log_i.mpc_horizon[j].xk.Y);
         }
         plt::clf();
         plt::plot(plot_xc,plot_yc,"r--");
         plt::plot(plot_xi,plot_yi,"k-");
         plt::plot(plot_xo,plot_yo,"k-");
-        plotBox(log[i].mpc_horizon[0].xk);
+        plotBox(log_i.mpc_horizon[0].xk);
         plt::plot(plot_x,plot_y,"b-");
         plt::axis("equal");
         plt::xlim(-2,2);
@@ -156,15 +161,5 @@ void Plotting::plotBox(const State &x0) const
     corner_y.push_back(x0.Y + body_yl + body_yw);
 
     plt::plot(corner_x,corner_y,"k-");
-
-
-//    car1 = x0(1:2) + [cos(x0(3))*l;sin(x0(3))*l] + [sin(x0(3))*w;-cos(x0(3))*w];
-//    car2 = x0(1:2) + [cos(x0(3))*l;sin(x0(3))*l] - [sin(x0(3))*w;-cos(x0(3))*w];
-//    car3 = x0(1:2) - [cos(x0(3))*l;sin(x0(3))*l] + [sin(x0(3))*w;-cos(x0(3))*w];
-//    car4 = x0(1:2) - [cos(x0(3))*l;sin(x0(3))*l] - [sin(x0(3))*w;-cos(x0(3))*w];
-//
-//    plot([car1(1),car2(1),car4(1),car3(1),car1(1)],[car1(2),car2(2),car4(2),car3(2),car1(2)],'k','LineWidth',1)
 }
-
-
 }

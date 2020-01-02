@@ -31,6 +31,9 @@
 
 #include <array>
 #include <memory>
+#include <ctime>
+#include <ratio>
+#include <chrono>
 
 namespace mpcc{
 
@@ -74,7 +77,7 @@ public:
 
     void setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y);
 
-    MPC(int n_sqp);
+    MPC(int n_sqp,int n_reset);
 
 private:
     bool valid_initial_guess_;
@@ -98,6 +101,9 @@ private:
                                                       const std::array<OptVariables, N + 1> &current_solution);
 
     int n_sqp_;
+    int n_non_solves_;
+    int n_no_solves_sqp_;
+    int n_reset_;
     Model model_;
     Integrator integrator_;
     Cost cost_;

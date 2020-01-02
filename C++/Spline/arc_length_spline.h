@@ -18,6 +18,7 @@
 #define MPCC_ARC_LENGTH_SPLINE_H
 
 #include "cubic_spline.h"
+#include "types.h"
 
 namespace mpcc{
 //return value
@@ -47,6 +48,7 @@ private:
     PathData resamplePath(const CubicSpline &initial_spline_x,const CubicSpline &initial_spline_y,double total_arc_length) const;
     RawPath outlierRemoval(const Eigen::VectorXd &X_original,const Eigen::VectorXd &Y_original) const;
     void fitSpline(const Eigen::VectorXd &X,const Eigen::VectorXd &Y);
+    double unwrapInput(double x) const;
 public:
     // X and Y spline used for final spline fit
     void gen2DSpline(const Eigen::VectorXd &X,const Eigen::VectorXd &Y);
@@ -54,6 +56,7 @@ public:
     Eigen::Vector2d getDerivative(double) const;
     Eigen::Vector2d getSecondDerivative(double) const;
     double getLength() const;
+    double porjectOnSpline(const State &x) const;
 };
 }
 #endif //MPCC_ARC_LENGTH_SPLINE_H

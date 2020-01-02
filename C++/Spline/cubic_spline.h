@@ -48,6 +48,7 @@ private:
     void setData(const Eigen::VectorXd &x_in,const Eigen::VectorXd &y_in);
     bool compSplineParams();
     int getIndex(double x) const;
+    double unwrapInput(double x) const;
 public:
     void genSpline(const Eigen::VectorXd &x_in,const Eigen::VectorXd &y_in,bool is_regular);
     double getPoint(double x) const;

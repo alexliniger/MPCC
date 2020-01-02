@@ -29,8 +29,8 @@ namespace plt = matplotlibcpp;
 namespace mpcc {
 class Plotting {
 public:
-    void plotRun(const std::vector<MPCReturn> &log, const TrackPos &track_xy) const;
-    void plotSim(const std::vector<MPCReturn> &log, const TrackPos &track_xy) const;
+    void plotRun(const std::list<MPCReturn> &log, const TrackPos &track_xy) const;
+    void plotSim(const std::list<MPCReturn> &log, const TrackPos &track_xy) const;
 
 private:
     void plotBox(const State &x0) const;

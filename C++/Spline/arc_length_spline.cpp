@@ -167,6 +167,12 @@ RawPath ArcLengthSpline::outlierRemoval(const Eigen::VectorXd &X_original,const 
     return resampled_path;
 }
 
+double ArcLengthSpline::unwrapInput(double x) const
+{
+    double x_max = getLength();
+    return x - x_max*std::floor(x/x_max);
+}
+
 void ArcLengthSpline::fitSpline(const Eigen::VectorXd &X,const Eigen::VectorXd &Y)
 {
     // successively fit spline -> re-sample path -> compute arc length
@@ -209,8 +215,7 @@ void ArcLengthSpline::gen2DSpline(const Eigen::VectorXd &X,const Eigen::VectorXd
 {
     // generate 2-D arc length parametrized spline given X-Y data
 
-    // remove outliers
-    // TODO check if it really helps
+    // remove outliers, depending on how iregular the points are this can help
     RawPath clean_path;
     clean_path = outlierRemoval(X,Y);
     // successively fit spline and re-sample
@@ -249,5 +254,49 @@ Eigen::Vector2d ArcLengthSpline::getSecondDerivative(const double s) const
 double ArcLengthSpline::getLength() const
 {
     return path_data_.s(path_data_.n_points-1);
+}
+
+double ArcLengthSpline::porjectOnSpline(const State &x) const
+{
+    Eigen::Vector2d pos;
+    pos(0) = x.X;
+    pos(1) = x.Y;
+    double s_guess = x.s;
+    Eigen::Vector2d pos_path = getPostion(s_guess);
+
+    double s_opt = s_guess;
+    double dist = (pos-pos_path).norm();
+
+    if (dist >= 0.4)
+    {
+        std::cout << "dist too large" << std::endl;
+        Eigen::ArrayXd diff_x_all = path_data_.X.array() - pos(0);
+        Eigen::ArrayXd diff_y_all = path_data_.Y.array() - pos(1);
+        Eigen::ArrayXd dist_square = diff_x_all.square() + diff_y_all.square();
+        std::vector<double> dist_square_vec(dist_square.data(),dist_square.data() + dist_square.size());
+        auto min_iter = std::min_element(dist_square_vec.begin(),dist_square_vec.end());
+        s_opt = path_data_.s(std::distance(dist_square_vec.begin(), min_iter));
+    }
+    double s_old = s_opt;
+    for(int i=0; i<20; i++)
+    {
+        pos_path = getPostion(s_opt);
+        Eigen::Vector2d ds_path = getDerivative(s_opt);
+        Eigen::Vector2d dds_path = getSecondDerivative(s_opt);
+        Eigen::Vector2d diff = pos_path - pos;
+        double jac = 2.0 * diff(0) * ds_path(0) + 2.0 * diff(1) * ds_path(1);
+        double hessian = 2.0 * ds_path(0) * ds_path(0) + 2.0 * diff(0) * dds_path(0) +
+                         2.0 * ds_path(1) * ds_path(1) + 2.0 * diff(1) * dds_path(1);
+        // Newton method
+        s_opt -= jac/hessian;
+        s_opt = unwrapInput(s_opt);
+
+//        std::cout << std::abs(s_old - s_opt) << std::endl;
+        if(std::abs(s_old - s_opt) <= 1e-5)
+            return s_opt;
+        s_old = s_opt;
+    }
+    // something is strange if it did not converge within 20 iterations, give back the initial guess
+    return s_guess;
 }
 }

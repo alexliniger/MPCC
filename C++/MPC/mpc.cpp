@@ -37,8 +37,8 @@ void MPC::setStage(const State &xk, const Input &uk, const int time_step)
     }
     else
     {
-        stages_[time_step].ng = 3;
-        stages_[time_step].ns = 3;
+        stages_[time_step].ng = NPC;
+        stages_[time_step].ns = NS;
     }
 
     State xk_nz = xk;
@@ -47,7 +47,7 @@ void MPC::setStage(const State &xk, const Input &uk, const int time_step)
     stages_[time_step].cost_mat = cost_.getCost(track_,xk_nz,time_step);
     stages_[time_step].lin_model = model_.getLinModel(xk_nz,uk);
     stages_[time_step].constrains_mat = constraints_.getConstraints(track_,xk_nz,uk);
-    //TODO better bounds interface
+    
     stages_[time_step].l_bounds_x = bounds_.getBoundsLX();
     stages_[time_step].u_bounds_x = bounds_.getBoundsUX();
     stages_[time_step].l_bounds_u = bounds_.getBoundsLU();
@@ -55,8 +55,8 @@ void MPC::setStage(const State &xk, const Input &uk, const int time_step)
     stages_[time_step].l_bounds_s = bounds_.getBoundsLS();
     stages_[time_step].u_bounds_s = bounds_.getBoundsUS();
 
-    stages_[time_step].l_bounds_x(si_index.s) = initial_guess_[time_step].xk.s - param.s_trust_region;//*initial_guess_[time_step].xk.vs;
-    stages_[time_step].u_bounds_x(si_index.s) = initial_guess_[time_step].xk.s + param.s_trust_region;//*initial_guess_[time_step].xk.vs;
+    stages_[time_step].l_bounds_x(si_index.s) = initial_guess_[time_step].xk.s - param.s_trust_region;
+    stages_[time_step].u_bounds_x(si_index.s) = initial_guess_[time_step].xk.s + param.s_trust_region;
 }
 
 void MPC::updateInitialGuess(const State &x0)
@@ -145,26 +145,37 @@ std::array<OptVariables,N+1> MPC::sqpSolutionUpdate(const std::array<OptVariable
 
 MPCReturn MPC::runMPC(State &x0)
 {
-    struct timeval tv0, tv1;
-    gettimeofday(&tv0, nullptr); // start
-    // TODO: implemment projection onto centerline for x0
+    auto t1 = std::chrono::high_resolution_clock::now();
+    int solver_status = -1;
+    x0.s = track_.porjectOnSpline(x0);
     x0.unwrap(track_.getLength());
     if(valid_initial_guess_)
         updateInitialGuess(x0);
     else
         generateNewInitialGuess(x0);
 
-    //TODO: Detect if not solved to optimility for to long and restart with fixed velocity initial guess
-    // change valid_initial_guess_ = 0 to restart
+    //TODO: this is one approach to handle solver errors, works well in simulation
+    n_no_solves_sqp_ = 0;
     for(int i=0;i<n_sqp_;i++)
     {
         setMPCProblem();
-        optimal_solution_ = solver_interface_->solveMPC(stages_,x0);
+        optimal_solution_ = solver_interface_->solveMPC(stages_,x0, &solver_status);
+        if(solver_status != 0)
+            n_no_solves_sqp_++;
         initial_guess_ = sqpSolutionUpdate(initial_guess_,optimal_solution_);
-
     }
-    gettimeofday(&tv1, nullptr); // stop
-    double time_nmpc = (tv1.tv_usec-tv0.tv_usec)/(1e6);
+    if(n_no_solves_sqp_ >= n_sqp_-1)
+        n_non_solves_++;
+    else
+        n_non_solves_ = 0;
+
+    if(n_non_solves_ >= n_reset_){
+        valid_initial_guess_ = false;
+    }
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+    double time_nmpc = time_span.count();
 
     return {initial_guess_[0].uk,initial_guess_,time_nmpc};
 }
@@ -173,9 +184,12 @@ void MPC::setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y){
     track_.gen2DSpline(X,Y);
 }
 
-MPC::MPC(int n_sqp)
+MPC::MPC(int n_sqp, int n_reset)
 :valid_initial_guess_(false),solver_interface_(new HpipmInterface())
 {
     n_sqp_ = n_sqp;
+    n_non_solves_ = 0;
+    n_no_solves_sqp_ = 0;
+    n_reset_ = n_reset;
 }
 }

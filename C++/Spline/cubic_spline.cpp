@@ -127,8 +127,7 @@ int CubicSpline::getIndex(const double x) const
 {
     // given a x value find the closest point in the spline to evalute it
     // special case if x is regularly space
-    // assumes wrapped data
-    // TODO add guards for rapping
+    // assumes wrapped data!
 
     // if special case of end points
     if(x == spline_data_.x_data(spline_data_.n_points-1))
@@ -143,23 +142,19 @@ int CubicSpline::getIndex(const double x) const
     // if irregular index need to be searched
     else
     {
-//        for (int i = 1; i < spline_data_.n_points; i++)
-//        {
-//            if (x >= spline_data_.x_data(i-1) && x < spline_data_.x_data(i))
-//            {
-//                return i-1;
-//            }
-//        }
-//        return -1;
         auto min_it = spline_data_.x_map.upper_bound(x);
         if(min_it==spline_data_.x_map.end())
             return -1;
         else{
-//            std::cout << x << " " << min_it->first << " " << min_it->second << std::endl;
             return min_it->second-1;
         }
 
     }
+}
+double CubicSpline::unwrapInput(double x) const
+{
+    double x_max = spline_data_.x_data(spline_data_.n_points-1);
+    return x - x_max*std::floor(x/x_max);
 }
 
 void CubicSpline::genSpline(const Eigen::VectorXd &x_in,const Eigen::VectorXd &y_in,const bool is_regular)
@@ -192,8 +187,7 @@ double CubicSpline::getPoint(double x) const
     double x_i;
     double dx,dx2,dx3;
     // wrape input to data -> x data needs start at 0 and contain end point!!!
-    // TODO generalize
-    x=std::fmod(x,spline_data_.x_data(spline_data_.n_points-1));
+    x = unwrapInput(x);
     // compute index
     index = getIndex(x);
     // access previous points
@@ -214,8 +208,7 @@ double CubicSpline::getDerivative(double x) const
     double x_i;
     double dx,dx2;
 
-    x=std::fmod(x,spline_data_.x_data(spline_data_.n_points-1));
-
+    x = unwrapInput(x);
     index = getIndex(x);
     x_i = spline_data_.x_data(index);
 
@@ -233,8 +226,7 @@ double CubicSpline::getSecondDerivative(double x) const
     double x_i;
     double dx;
 
-    x=std::fmod(x,spline_data_.x_data(spline_data_.n_points-1));
-
+    x = unwrapInput(x);
     index = getIndex(x);
     x_i = spline_data_.x_data(index);
 

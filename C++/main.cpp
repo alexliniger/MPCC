@@ -54,8 +54,8 @@ int main() {
     Track track;
     TrackPos track_xy = track.getTrack();
 
-    std::vector<MPCReturn> log;
-    MPC mpc(jsonConfig["n_sqp"]);
+    std::list<MPCReturn> log;
+    MPC mpc(jsonConfig["n_sqp"],jsonConfig["n_reset"]);
     mpc.setTrack(track_xy.X,track_xy.Y);
     State x0 = {track_xy.X(0),track_xy.Y(0),-1*M_PI/4.0,0.05,0,0,0,1.0,0,1.0};
     for(int i=0;i<jsonConfig["n_sim"];i++)
@@ -69,14 +69,15 @@ int main() {
 
     double mean_time = 0.0;
     double max_time = 0.0;
-    for(int i=10;i<411;i++)
+    for(MPCReturn log_i : log)
     {
-        mean_time += log[i].time_total;
-        if(log[i].time_total > max_time)
-            max_time = log[i].time_total;
+        mean_time += log_i.time_total;
+        if(log_i.time_total > max_time)
+            max_time = log_i.time_total;
     }
-    std::cout << "mean nmpc time " << mean_time/200.0 << std::endl;
+    std::cout << "mean nmpc time " << mean_time/double(jsonConfig["n_sim"]) << std::endl;
     std::cout << "max nmpc time " << max_time << std::endl;
     return 0;
 }
+
 

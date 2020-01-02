@@ -57,7 +57,7 @@ struct HpipmBound {
 
 class HpipmInterface : public SolverInterface {
 public:
-    std::array<OptVariables,N+1> solveMPC(std::array<Stage,N+1> &stages,const State &x0);
+    std::array<OptVariables,N+1> solveMPC(std::array<Stage,N+1> &stages,const State &x0, int *status);
 
     ~HpipmInterface(){
         std::cout << "Deleting Hpipm Interface" << std::endl;
@@ -134,7 +134,7 @@ private:
     void setPolytopicConstraints(std::array<Stage,N+1> &stages);
     void setSoftConstraints(std::array<Stage,N+1> &stages);
 
-    std::array<OptVariables,N+1> Solve();
+    std::array<OptVariables,N+1> Solve(int *status);
 
     void print_data();
 };

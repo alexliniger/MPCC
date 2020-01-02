@@ -199,7 +199,7 @@ void HpipmInterface::setSoftConstraints(std::array<Stage,N+1> &stages)
 }
 
 
-std::array<OptVariables,N+1> HpipmInterface::solveMPC(std::array<Stage,N+1> &stages, const State &x0)
+std::array<OptVariables,N+1> HpipmInterface::solveMPC(std::array<Stage,N+1> &stages, const State &x0, int *status)
 {
     setDynamics(stages,x0);
     setCost(stages);
@@ -208,13 +208,13 @@ std::array<OptVariables,N+1> HpipmInterface::solveMPC(std::array<Stage,N+1> &sta
     setSoftConstraints(stages);
 //    print_data();
 
-    std::array<OptVariables,N+1> opt_solution = Solve();
+    std::array<OptVariables,N+1> opt_solution = Solve(status);
     opt_solution[0].xk = x0;
 
     return opt_solution;
 }
 
-std::array<OptVariables,N+1> HpipmInterface::Solve()
+std::array<OptVariables,N+1> HpipmInterface::Solve(int *status)
 {
     // ocp qp dim
     int dim_size = d_ocp_qp_dim_memsize(N);
@@ -258,7 +258,7 @@ std::array<OptVariables,N+1> HpipmInterface::Solve()
 
 //    int mode = 1;
     double mu0 = 1e2;
-    int iter_max = 25;
+    int iter_max = 30;
     double tol_stat = 1e-6;
     double tol_eq = 1e-6;
     double tol_ineq = 1e-6;
@@ -370,6 +370,8 @@ std::array<OptVariables,N+1> HpipmInterface::Solve()
 
     free(u);
     free(x);
+
+    *status = hpipm_return;
 
     return optimal_solution;
 }
