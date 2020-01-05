@@ -267,7 +267,7 @@ double ArcLengthSpline::porjectOnSpline(const State &x) const
     double s_opt = s_guess;
     double dist = (pos-pos_path).norm();
 
-    if (dist >= 0.4)
+    if (dist >= param.max_dist_proj)
     {
         std::cout << "dist too large" << std::endl;
         Eigen::ArrayXd diff_x_all = path_data_.X.array() - pos(0);

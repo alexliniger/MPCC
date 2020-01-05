@@ -23,6 +23,7 @@
 #include <matplotlibcpp.h>
 #include <vector>
 #include <MPC/mpc.h>
+#include <Model/model.h>
 
 namespace plt = matplotlibcpp;
 
@@ -35,8 +36,7 @@ public:
 private:
     void plotBox(const State &x0) const;
 
-    double car_l = 0.06;
-    double car_w = 0.03;
+    Model model_;
 };
 }
 

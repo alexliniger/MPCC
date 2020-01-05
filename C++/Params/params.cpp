@@ -42,19 +42,23 @@ Param::Param(){
     Iz 	= jsonModel["Iz"];
     lf 	= jsonModel["lf"];
     lr 	= jsonModel["lr"];
+
+    car_l = jsonModel["car_l"];
+    car_w = jsonModel["car_w"];
+    
+    g = jsonModel["g"];
     //Constraint Parameters
     r_in = jsonModel["R_in"];
     r_out = jsonModel["R_out"];
+
+    max_dist_proj = jsonModel["max_dist_proj"];
 
     e_long = jsonModel["E_long"];
     e_eps = jsonModel["E_eps"];
 
     max_alpha = jsonModel["maxAlpha"];
-
+    // initial warm start and trust region (model dependent)
     initial_velocity = jsonModel["initial_velocity"];
-
-    sqp_mixing = jsonModel["sqp_mixing"];
-
     s_trust_region = jsonModel["s_trust_region"];
 }
 

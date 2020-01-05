@@ -131,10 +131,10 @@ std::array<OptVariables,N+1> MPC::sqpSolutionUpdate(const std::array<OptVariable
     InputVector updated_u_vec;
     for(int i = 0;i<=N;i++)
     {
-        updated_x_vec = param.sqp_mixing*stateToVector(current_solution[i].xk)
-                        +(1.0-param.sqp_mixing)*stateToVector(last_solution[i].xk);
-        updated_u_vec = param.sqp_mixing*inputToVector(current_solution[i].uk)
-                        +(1.0-param.sqp_mixing)*inputToVector(last_solution[i].uk);
+        updated_x_vec = sqp_mixing_*stateToVector(current_solution[i].xk)
+                        +(1.0-sqp_mixing_)*stateToVector(last_solution[i].xk);
+        updated_u_vec = sqp_mixing_*inputToVector(current_solution[i].uk)
+                        +(1.0-sqp_mixing_)*inputToVector(last_solution[i].uk);
 
         updated_solution[i].xk = vectorToState(updated_x_vec);
         updated_solution[i].uk = vectorToInput(updated_u_vec);
@@ -164,7 +164,8 @@ MPCReturn MPC::runMPC(State &x0)
             n_no_solves_sqp_++;
         initial_guess_ = sqpSolutionUpdate(initial_guess_,optimal_solution_);
     }
-    if(n_no_solves_sqp_ >= n_sqp_-1)
+    const int max_error = MAX(n_sqp_-1,1);
+    if(n_no_solves_sqp_ >= max_error)
         n_non_solves_++;
     else
         n_non_solves_ = 0;
@@ -184,10 +185,11 @@ void MPC::setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y){
     track_.gen2DSpline(X,Y);
 }
 
-MPC::MPC(int n_sqp, int n_reset)
+MPC::MPC(int n_sqp, int n_reset,double sqp_mixing)
 :valid_initial_guess_(false),solver_interface_(new HpipmInterface())
 {
     n_sqp_ = n_sqp;
+    sqp_mixing_ = sqp_mixing;
     n_non_solves_ = 0;
     n_no_solves_sqp_ = 0;
     n_reset_ = n_reset;

@@ -55,7 +55,7 @@ int main() {
     TrackPos track_xy = track.getTrack();
 
     std::list<MPCReturn> log;
-    MPC mpc(jsonConfig["n_sqp"],jsonConfig["n_reset"]);
+    MPC mpc(jsonConfig["n_sqp"],jsonConfig["n_reset"],jsonConfig["sqp_mixing"]);
     mpc.setTrack(track_xy.X,track_xy.Y);
     State x0 = {track_xy.X(0),track_xy.Y(0),-1*M_PI/4.0,0.05,0,0,0,1.0,0,1.0};
     for(int i=0;i<jsonConfig["n_sim"];i++)

@@ -19,17 +19,21 @@
   "lf" 	: 0.029,
   "lr" 	: 0.033,
 
+  "car_l": 0.06,
+  "car_w": 0.03,
+
+  "g"   : 9.81,
+
   "R_in" : 0.14,
   "R_out" : 0.14,
 
-  "E_long" : 0.8,
-  "E_eps" : 0.99,
+  "max_dist_proj": 0.2,
 
-  "maxAlpha" : 0.8,
+  "E_long" : 0.9,
+  "E_eps" : 0.95,
+
+  "maxAlpha" : 0.6,
 
   "initial_velocity" : 1.0,
-
-  "sqp_mixing" : 0.8,
-
   "s_trust_region" : 0.2
 }

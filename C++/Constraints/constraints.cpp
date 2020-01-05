@@ -71,6 +71,7 @@ C_i_MPC Constraints::getTireConstraintRearJac(const State &x) const
     // compute Jacobean of the tire constraints
     const TireForces f_rear = model_.getForceRear(x);
     const TireForcesDerivatives df_rear = model_.getForceRearDerivatives(x);
+    const NormalForces f_normal = model_.getForceNormal(x);
 
 //    const double TC = 2.0*std::sqrt(std::pow(param.e_long*f_rear.F_x,2) + std::pow(f_rear.F_y,2));
 //
@@ -81,14 +82,15 @@ C_i_MPC Constraints::getTireConstraintRearJac(const State &x) const
 //    const double dTC_dr  = (2.0*f_rear.F_y*df_rear.dF_y_r)/TC;
 //    const double dTC_dD  = (2.0*param.e_long*f_rear.F_x*df_rear.dF_x_D)/TC;
 
-    const double TC = std::pow(param.e_long*f_rear.F_x,2) + std::pow(f_rear.F_y,2);
+    const double TC = std::pow(param.e_long*f_rear.F_x/f_normal.F_N_rear,2) + std::pow(f_rear.F_y/f_normal.F_N_rear,2);
 
     // Tire constraint derivatives
     // TC = (param.e_long*Frx)^2 + Fry^2
-    const double dTC_dvx = (2.0*param.e_long*f_rear.F_x*df_rear.dF_x_vx + 2.0*f_rear.F_y*df_rear.dF_y_vx);
-    const double dTC_dvy = (2.0*f_rear.F_y*df_rear.dF_y_vy);
-    const double dTC_dr  = (2.0*f_rear.F_y*df_rear.dF_y_r);
-    const double dTC_dD  = (2.0*param.e_long*f_rear.F_x*df_rear.dF_x_D);
+    const double dTC_dvx = (2.0*param.e_long*f_rear.F_x/f_normal.F_N_rear*param.e_long*df_rear.dF_x_vx/f_normal.F_N_rear +
+                            2.0*f_rear.F_y/f_normal.F_N_rear*df_rear.dF_y_vx/f_normal.F_N_rear);
+    const double dTC_dvy = (2.0*f_rear.F_y/f_normal.F_N_rear*df_rear.dF_y_vy/f_normal.F_N_rear);
+    const double dTC_dr  = (2.0*f_rear.F_y/f_normal.F_N_rear*df_rear.dF_y_r/f_normal.F_N_rear);
+    const double dTC_dD  = (2.0*param.e_long*f_rear.F_x/f_normal.F_N_rear*param.e_long*df_rear.dF_x_D/f_normal.F_N_rear);
 
     // Copy partial derivatives in jacobean matrix
     C_i_MPC Jac_tireCon = C_i_MPC::Zero();
@@ -156,17 +158,17 @@ ConstrainsMatrix Constraints::getConstraints(const ArcLengthSpline &track,const 
     d_MPC dl_constrains_matrix;
     d_MPC du_constrains_matrix;
 
-    C_constrains_matrix.row(0) = track_constraints.C_i;
-    dl_constrains_matrix(0) = track_constraints.dl_i;
-    du_constrains_matrix(0) = track_constraints.du_i;
+    C_constrains_matrix.row(si_index.con_track) = track_constraints.C_i;
+    dl_constrains_matrix(si_index.con_track) = track_constraints.dl_i;
+    du_constrains_matrix(si_index.con_track) = track_constraints.du_i;
 
-    C_constrains_matrix.row(1) = tire_constraints_rear.C_i;
-    dl_constrains_matrix(1) = tire_constraints_rear.dl_i;
-    du_constrains_matrix(1) = tire_constraints_rear.du_i;
+    C_constrains_matrix.row(si_index.con_tire) = tire_constraints_rear.C_i;
+    dl_constrains_matrix(si_index.con_tire) = tire_constraints_rear.dl_i;
+    du_constrains_matrix(si_index.con_tire) = tire_constraints_rear.du_i;
 
-    C_constrains_matrix.row(2) = alpha_constraints_front.C_i;
-    dl_constrains_matrix(2) = alpha_constraints_front.dl_i;
-    du_constrains_matrix(2) = alpha_constraints_front.du_i;
+    C_constrains_matrix.row(si_index.con_alpha) = alpha_constraints_front.C_i;
+    dl_constrains_matrix(si_index.con_alpha) = alpha_constraints_front.dl_i;
+    du_constrains_matrix(si_index.con_alpha) = alpha_constraints_front.du_i;
 
     return {C_constrains_matrix,D_MPC::Zero(),dl_constrains_matrix,du_constrains_matrix};
 }

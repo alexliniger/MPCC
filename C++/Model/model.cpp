@@ -28,16 +28,6 @@ double Model::getSlipAngleRear(const State &x) const
     return -std::atan2(x.vy-x.r*param.lr,x.vx);
 }
 
-//TireForces Model::getForceFront(const State &x) const
-//{
-//    TireForces tire_forces_front;
-//    const double alpha_f = getSlipAngleFront(x);
-//    tire_forces_front.F_y = param.Df * std::sin(param.Cf * std::atan(param.Bf * alpha_f ));
-//    tire_forces_front.F_x = 0.0;
-//
-//    return tire_forces_front;
-//}
-
 TireForces Model::getForceFront(const State &x) const
 {
     const double alpha_f = getSlipAngleFront(x);
@@ -51,9 +41,22 @@ TireForces Model::getForceRear(const State &x) const
 {
     const double alpha_r = getSlipAngleRear(x);
     const double F_y = param.Dr * std::sin(param.Cr * std::atan(param.Br * alpha_r ));
-    const double F_x = param.Cm1*x.D - param.Cm2*x.D*x.vx - param.Cr0 - param.Cr2*std::pow(x.vx,2.0);
+    const double F_x = param.Cm1*x.D - param.Cm2*x.D*x.vx;// - param.Cr0 - param.Cr2*std::pow(x.vx,2.0);
 
     return {F_y,F_x};
+}
+
+double Model::getForceFriction(const State &x) const
+{
+    return -param.Cr0 - param.Cr2*std::pow(x.vx,2.0);
+}
+
+NormalForces Model::getForceNormal(const State &x) const
+{
+    // at this point aero forces could be modeled
+    const double f_n_front = param.lr/(param.lf + param.lr)*param.m*param.g;
+    const double f_n_rear = param.lf/(param.lf + param.lr)*param.m*param.g;
+    return {f_n_front,f_n_rear};
 }
 
 TireForcesDerivatives Model::getForceFrontDerivatives(const State &x) const
@@ -95,7 +98,7 @@ TireForcesDerivatives Model::getForceRearDerivatives(const State &x) const
     const double D  = x.D;
 
     //F_rx
-    const double dF_x_vx    = -param.Cm2*D - 2.0*param.Cr2*vx;
+    const double dF_x_vx    = -param.Cm2*D;// - 2.0*param.Cr2*vx;
     const double dF_x_vy    = 0.0;
     const double dF_x_r     = 0.0;
     const double dF_x_D     = param.Cm1 - param.Cm2*vx;
@@ -116,6 +119,10 @@ TireForcesDerivatives Model::getForceRearDerivatives(const State &x) const
     return {dF_y_vx,dF_y_vy,dF_y_r,dF_y_D,dF_y_delta,dF_x_vx,dF_x_vy,dF_x_r,dF_x_D,dF_x_delta};
 }
 
+FrictionForceDerivatives Model::getForceFrictionDerivatives(const State &x) const
+{
+    return {-2.0*param.Cr2*x.vx,0.0,0.0,0.0,0.0};
+}
 
 StateVector Model::getF(const State &x,const Input &u) const
 {

@@ -45,8 +45,15 @@ public:
     double lf;
     double lr;
 
+    double car_l;
+    double car_w;
+
+    double g;
+
     double r_in;
     double r_out;
+
+     double max_dist_proj;
 
     double e_long;
     double e_eps;
@@ -54,7 +61,6 @@ public:
     double max_alpha;
 
     double initial_velocity;
-    double sqp_mixing;
     double s_trust_region;
 
     Param();

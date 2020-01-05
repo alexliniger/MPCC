@@ -32,6 +32,11 @@ struct TireForces {
     const double F_x;
 };
 
+struct NormalForces {
+    const double F_N_front;
+    const double F_N_rear;
+};
+
 struct TireForcesDerivatives{
     const double dF_y_vx;
     const double dF_y_vy;
@@ -46,6 +51,14 @@ struct TireForcesDerivatives{
     const double dF_x_delta;
 };
 
+struct FrictionForceDerivatives {
+    const double dF_f_vx;
+    const double dF_f_vy;
+    const double dF_f_r;
+    const double dF_f_D;
+    const double dF_f_delta;
+};
+
 class Model {
 public:
     double getSlipAngleFront(const State &x) const;
@@ -53,9 +66,12 @@ public:
 
     TireForces getForceFront(const State &x) const;
     TireForces getForceRear(const State &x) const;
+    double getForceFriction(const State &x) const;
+    NormalForces getForceNormal(const State &x) const;
 
     TireForcesDerivatives getForceFrontDerivatives(const State &x) const;
     TireForcesDerivatives getForceRearDerivatives(const State &x) const;
+    FrictionForceDerivatives getForceFrictionDerivatives(const State &x) const;
 
     StateVector getF(const State &x,const Input &u) const;
 

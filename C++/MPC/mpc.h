@@ -77,7 +77,7 @@ public:
 
     void setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y);
 
-    MPC(int n_sqp,int n_reset);
+    MPC(int n_sqp, int n_reset, double sqp_mixing);
 
 private:
     bool valid_initial_guess_;
@@ -101,6 +101,7 @@ private:
                                                       const std::array<OptVariables, N + 1> &current_solution);
 
     int n_sqp_;
+    double sqp_mixing_;
     int n_non_solves_;
     int n_no_solves_sqp_;
     int n_reset_;
