@@ -6,14 +6,30 @@ This is a C++ implementation of the MPCC controller. The implementation is NOT t
 ### Solver
 This version only supports hpipm as a solver. However, the goal is to add an [acados](https://github.com/acados/acados) qp interface, which would allow to use the large list of solvers supported by acoados.
 
-### Input rate cost and constraints
-Instead of lifting the state and using the difference in inputs as a new input, this version uses the continuous time approach where the new inputs are the rate of change of the inputs. For more details look at the formulation in [AMZ Driverless: The Full Autonomous Racing System](https://arxiv.org/abs/1905.05150).
+### Input rate cost and constraints - Dynamics
+Instead of lifting the state and using the difference in inputs as a new input, this version uses the continuous time approach where the new inputs are the rate of change of the inputs, similar to [AMZ Driverless: The Full Autonomous Racing System](https://arxiv.org/abs/1905.05150).
+
+In detail we use the following dynamics,
+<img src="https://github.com/alexliniger/MPCC/blob/master/Images/model_cpp.jpg" width="700" />
+this also includes some changes in the notation, to match better the literature. Mainly the yaw rate is not `r` and the progress `s`. Thus, we have the following states and inputs,
+<img src="https://github.com/alexliniger/MPCC/blob/master/Images/state_input_cpp.jpg" width="700" />
+We also split up the force in x direction into two components, the force at the wheel `F_r,x` and the friction force `F_fric`, which are defined as follows,
+<img src="https://github.com/alexliniger/MPCC/blob/master/Images/forces_cpp.jpg" width="700" />
 
 ### Tire constraints
-The C++ implementation adds the tire constraints used in [AMZ Driverless: The Full Autonomous Racing System](https://arxiv.org/abs/1905.05150). More precisely, I added a slip angle constraint (of the form: alpha_min <= alpha_f <= alpha_max) for the front wheel (since the 1:43 scale cars are rear wheel drive and have no brakes), and a tire friction ellipse constraint for the rear wheel (which has the form (e_long F_rx)^2 + F_ry^2 <= e_eps D_r). Note that if the car is all wheel drive or has breaks at the front wheel, also a tire ellipse constraint should be used for the front tire. Furthermore, it would be good practice to scale the tire friction forces, but for the cars used the forces are around 1, so this is not yet done.
+The C++ implementation adds the tire constraints used in [AMZ Driverless: The Full Autonomous Racing System](https://arxiv.org/abs/1905.05150). More precisely, I added a slip angle constraint for the front wheel (since the 1:43 scale cars are rear wheel drive and have no brakes), and a tire friction ellipse constraint for the rear wheel. Thus, the MPC problem the following three constraints, on top of state and input bounds,
+<img src="https://github.com/alexliniger/MPCC/blob/master/Images/constraints_cpp.jpg" width="700" />
+ Note that if the car is all wheel drive or has breaks at the front wheel, also a tire ellipse constraint should be used for the front tire. 
+
+### Beta Cost
+We added an additional regularization cost, which penalizes high sideslip angles. This second regularization cost augments the small cost on the yaw rate. These regularization costs force the car to behave more reasonable and help the NLP to converge better.
+<img src="https://github.com/alexliniger/MPCC/blob/master/Images/cost_cpp.jpg" width="700" />
 
 ### Obstacle Avoidance
 There is no obstacle avoidance available yet in the C++ version 
+
+### Options
+Currently only one track and car model is implemented. However, adapting the parameters only requires changing the json files in the Params folder.
 
 ## Installation 
 
@@ -38,5 +54,4 @@ To run the code simply execute the `MPCC`
 
 ### TODO
 
-There are still several things which should be added to the project. Most of them are marked with TODO in the code
-
+There are still several things which should be added to the project. Most of them are marked with TODO in the code.
