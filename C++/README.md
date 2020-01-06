@@ -40,7 +40,6 @@ Currently only one track and car model is implemented. However, adapting the par
 To install all the dependencies run
 ```
 ./install.sh
-
 ```
 this clones `blasfeo`, `hpipm`, `matplotlip-cpp`, `nlohmann/json`, and `eigen`, from their git repo, and safes them in a folder External. Additionally it installs `blasfeo` and `hpipm` in the same External folder, thus no admin rights are necessary.
 
