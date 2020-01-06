@@ -11,14 +11,18 @@ Instead of lifting the state and using the difference in inputs as a new input, 
 
 In detail we use the following dynamics,
 <img src="https://github.com/alexliniger/MPCC/blob/master/Images/model_cpp.jpg" width="700" />
+
 this also includes some changes in the notation, to match better the literature. Mainly the yaw rate is not `r` and the progress `s`. Thus, we have the following states and inputs,
+
 <img src="https://github.com/alexliniger/MPCC/blob/master/Images/state_input_cpp.jpg" width="700" />
+
 We also split up the force in x direction into two components, the force at the wheel `F_r,x` and the friction force `F_fric`, which are defined as follows,
 <img src="https://github.com/alexliniger/MPCC/blob/master/Images/forces_cpp.jpg" width="700" />
 
 ### Tire constraints
 The C++ implementation adds the tire constraints used in [AMZ Driverless: The Full Autonomous Racing System](https://arxiv.org/abs/1905.05150). More precisely, I added a slip angle constraint for the front wheel (since the 1:43 scale cars are rear wheel drive and have no brakes), and a tire friction ellipse constraint for the rear wheel. Thus, the MPC problem the following three constraints, on top of state and input bounds,
 <img src="https://github.com/alexliniger/MPCC/blob/master/Images/constraints_cpp.jpg" width="700" />
+
  Note that if the car is all wheel drive or has breaks at the front wheel, also a tire ellipse constraint should be used for the front tire. 
 
 ### Beta Cost
