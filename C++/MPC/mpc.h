@@ -77,7 +77,7 @@ public:
 
     void setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y);
 
-    MPC(int n_sqp, int n_reset, double sqp_mixing);
+    MPC(int n_sqp, int n_reset, double sqp_mixing, Param params, CostParam cost_param, BoundsParam bounds_param);
 
 private:
     bool valid_initial_guess_;

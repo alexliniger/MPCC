@@ -64,6 +64,8 @@ public:
     double s_trust_region;
 
     Param();
+    Param(std::string file);
+
 };
 
 class CostParam{
@@ -96,6 +98,8 @@ public:
     double sc_lin_alpha;
 
     CostParam();
+    CostParam(std::string file);
+
 };
 
 class BoundsParam{
@@ -142,6 +146,8 @@ public:
     UpperInputBounds upper_input_bounds;
 
     BoundsParam();
+    BoundsParam(std::string file);
+
 };
 }
 #endif //MPCC_PARAMS_H

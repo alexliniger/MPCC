@@ -68,11 +68,12 @@ void genRoundTrack(ArcLengthSpline &track){
 
 }
 
-int testAlphaConstraint(){
-    Constraints constraints;
-    Model model;
-    ArcLengthSpline track;
+int testAlphaConstraint(const Param &param, const Model &model){
+    Constraints constraints = Constraints(param);
 
+    ArcLengthSpline track;
+    track.setParam(param);
+    
     double alpha_f;
     genRoundTrack(track);
 
@@ -99,14 +100,14 @@ int testAlphaConstraint(){
     std::cout << "true alpha " << alpha_f  << std::endl;
     std::cout << constraints_0.dl(2) << "<=" << constraints_0.C.row(2)*xk1_vec <<  "<=" << constraints_0.du(2) << std::endl;
 
-    if ((constraints_0.dl(2)<= constraints_0.C.row(2)*xk1_vec && constraints_0.C.row(2)*xk1_vec  <= constraints_0.du(2)) ^ (-param.max_alpha <= alpha_f && alpha_f  <= param.max_alpha)){
+    if ((constraints_0.dl(2)<= constraints_0.C.row(2)*xk1_vec && constraints_0.C.row(2)*xk1_vec  <= constraints_0.du(2)) ^ (-model.getParam().max_alpha <= alpha_f && alpha_f  <= model.getParam().max_alpha)){
         return  0;
     }
 
     ConstrainsMatrix constraints_1 = constraints.getConstraints(track,xk1,uk1);
     std::cout << constraints_1.dl(2) << "<=" << constraints_1.C.row(2)*xk1_vec <<  "<=" << constraints_1.du(2) << std::endl;
 
-    if ((constraints_1.dl(2)<= constraints_1.C.row(2)*xk1_vec && constraints_1.C.row(2)*xk1_vec  <= constraints_1.du(2)) ^ (-param.max_alpha <= alpha_f && alpha_f  <= param.max_alpha)){
+    if ((constraints_1.dl(2)<= constraints_1.C.row(2)*xk1_vec && constraints_1.C.row(2)*xk1_vec  <= constraints_1.du(2)) ^ (-model.getParam().max_alpha <= alpha_f && alpha_f  <= model.getParam().max_alpha)){
         return  0;
     }
 
@@ -118,7 +119,7 @@ int testAlphaConstraint(){
     std::cout << "true alpha " << alpha_f  << std::endl;
     std::cout << constraints_2.dl(2) << "<=" << constraints_2.C.row(2)*xk2_vec <<  "<=" << constraints_2.du(2) << std::endl;
 
-    if ((constraints_2.dl(2)<= constraints_2.C.row(2)*xk2_vec && constraints_2.C.row(2)*xk2_vec  <= constraints_2.du(2)) ^ (-param.max_alpha <= alpha_f && alpha_f  <= param.max_alpha)){
+    if ((constraints_2.dl(2)<= constraints_2.C.row(2)*xk2_vec && constraints_2.C.row(2)*xk2_vec  <= constraints_2.du(2)) ^ (-model.getParam().max_alpha <= alpha_f && alpha_f  <= model.getParam().max_alpha)){
         return  0;
     }
 
@@ -127,9 +128,8 @@ int testAlphaConstraint(){
 }
 
 
-int testTireForceConstraint() {
-    Constraints constraints;
-    Model model;
+int testTireForceConstraint(const Param &param, const Model &model) {
+    Constraints constraints = Constraints(param);
     ArcLengthSpline track;
 
 
@@ -157,8 +157,8 @@ int testTireForceConstraint() {
 
     TireForces f_rear = model.getForceRear(xk1);
 
-    tireForce = std::sqrt(std::pow(param.e_long*f_rear.F_x,2) + std::pow(f_rear.F_y,2));
-    maxForce = param.e_eps*param.Dr;
+    tireForce = std::sqrt(std::pow(model.getParam().e_long*f_rear.F_x,2) + std::pow(f_rear.F_y,2));
+    maxForce = model.getParam().e_eps*model.getParam().Dr;
 
     ConstrainsMatrix constraints_mat = constraints.getConstraints(track,xk2,uk2);
 
@@ -170,8 +170,8 @@ int testTireForceConstraint() {
 }
 
 
-int testTrackConstraint() {
-    Constraints constraints;
+int testTrackConstraint(const Param &param) {
+    Constraints constraints = Constraints(param);
     ArcLengthSpline track;
 
     genRoundTrack(track);

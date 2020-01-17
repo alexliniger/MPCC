@@ -37,6 +37,9 @@ struct OneDConstraint {
 
 class Constraints {
 public:
+    Constraints();
+    Constraints(Param params);
+    
     ConstrainsMatrix getConstraints(const ArcLengthSpline &track,const State &x,const Input &u) const;
 private:
     OneDConstraint getTrackConstraints(const ArcLengthSpline &track,const State &x) const;

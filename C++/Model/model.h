@@ -76,7 +76,13 @@ public:
     StateVector getF(const State &x,const Input &u) const;
 
     LinModelMatrix getLinModel(const State &x, const Input &u) const;
+
+    void setParam(const Param &params) { param_ = params; }
+    Param getParam(void) const { return param_; }
+
 private:
+    Param param_;
+
     LinModelMatrix getModelJacobian(const State &x, const Input &u) const;
     LinModelMatrix discretizeModel(const LinModelMatrix &lin_model_c) const;
 };

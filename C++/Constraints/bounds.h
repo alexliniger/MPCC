@@ -23,6 +23,7 @@ namespace mpcc{
 class Bounds {
 public:
     Bounds();
+    Bounds(BoundsParam bounds_param);
 
     Bounds_x getBoundsLX() const;
     Bounds_x getBoundsUX() const;
@@ -34,6 +35,7 @@ public:
     Bounds_s getBoundsUS() const;
 
 private:
+
     Bounds_x u_bounds_x_;
     Bounds_x l_bounds_x_;
 

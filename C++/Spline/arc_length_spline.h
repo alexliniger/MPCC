@@ -41,6 +41,7 @@ private:
 //    PathData pathDataFinal; // final data
     CubicSpline spline_x_;
     CubicSpline spline_y_;
+    Param param_;
 
     void setData(const Eigen::VectorXd &X_in,const Eigen::VectorXd &Y_in);
     void setRegularData(const Eigen::VectorXd &X_in,const Eigen::VectorXd &Y_in,const Eigen::VectorXd &s_in);
@@ -57,6 +58,8 @@ public:
     Eigen::Vector2d getSecondDerivative(double) const;
     double getLength() const;
     double porjectOnSpline(const State &x) const;
+    void setParam(const Param &param) { param_ = param; };
+
 };
 }
 #endif //MPCC_ARC_LENGTH_SPLINE_H

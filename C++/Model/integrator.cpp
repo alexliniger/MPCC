@@ -16,6 +16,13 @@
 
 #include "integrator.h"
 namespace mpcc{
+Integrator::Integrator(){
+}
+
+Integrator::Integrator(Param param){
+  setParam(param);
+}
+
 State Integrator::RK4(const State &x, const Input &u,const double ts) const
 {
     // 4th order Runge Kutta (RK4) implementation

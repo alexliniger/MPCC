@@ -18,6 +18,10 @@
 namespace mpcc{
 Bounds::Bounds()
 {
+}
+
+Bounds::Bounds(BoundsParam bounds_param) 
+{
     l_bounds_x_(0) = bounds_param.lower_state_bounds.X_l;
     l_bounds_x_(1) = bounds_param.lower_state_bounds.Y_l;
     l_bounds_x_(2) = bounds_param.lower_state_bounds.phi_l;

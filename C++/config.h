@@ -42,9 +42,6 @@ static constexpr double TS = 0.02;
 static constexpr double INF = 1E5;
 static constexpr int N_SPLINE = 1000;
 
-static const Param param;
-static const CostParam cost_param;
-static const BoundsParam bounds_param;
 
 struct StateInputIndex{
     int X = 0;

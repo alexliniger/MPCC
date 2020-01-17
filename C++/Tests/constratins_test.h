@@ -22,8 +22,8 @@
 #include "Constraints/constraints.h"
 namespace mpcc{
 void genRoundTrack(ArcLengthSpline& track);
-int testAlphaConstraint();
-int testTireForceConstraint();
-int testTrackConstraint();
+int testAlphaConstraint(const Param &param, const Model &model);
+int testTireForceConstraint(const Param &param, const Model &model);
+int testTrackConstraint(const Param &param);
 }
 #endif //MPCC_CONSTRATINS_TEST_H

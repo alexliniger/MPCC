@@ -41,7 +41,18 @@ struct TrackPos {
 
 class Track {
 public:
+    Track(std::string file);
     TrackPos getTrack();
+
+private:
+    Eigen::VectorXd X;
+    Eigen::VectorXd Y;
+
+    Eigen::VectorXd X_inner;
+    Eigen::VectorXd Y_inner;
+
+    Eigen::VectorXd X_outer;
+    Eigen::VectorXd Y_outer;
 };
 };
 

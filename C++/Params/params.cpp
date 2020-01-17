@@ -16,11 +16,15 @@
 
 #include "params.h"
 namespace mpcc{
+    
 Param::Param(){
+}
+
+Param::Param(std::string file){
     /////////////////////////////////////////////////////
     // Loading Model and Constraint Parameters //////////
     /////////////////////////////////////////////////////
-    std::ifstream iModel("Params/model.json");
+    std::ifstream iModel(file);
     json jsonModel;
     iModel >> jsonModel;
     // Model Parameters
@@ -64,10 +68,13 @@ Param::Param(){
 
 CostParam::CostParam(){
 
+}
+
+CostParam::CostParam(std::string file){
     /////////////////////////////////////////////////////
     // Loading Cost Parameters //////////////////////////
     /////////////////////////////////////////////////////
-    std::ifstream iCost("Params/cost.json");
+    std::ifstream iCost(file);
     json jsonCost;
     iCost >> jsonCost;
 
@@ -100,11 +107,14 @@ CostParam::CostParam(){
 }
 
 BoundsParam::BoundsParam() {
+}
+
+BoundsParam::BoundsParam(std::string file) {
 
     /////////////////////////////////////////////////////
     // Loading Cost Parameters //////////////////////////
     /////////////////////////////////////////////////////
-    std::ifstream iBounds("Params/bounds.json");
+    std::ifstream iBounds(file);
     json jsonBounds;
     iBounds >> jsonBounds;
 
@@ -138,4 +148,5 @@ BoundsParam::BoundsParam() {
     upper_input_bounds.dDelta_u = jsonBounds["dDeltau"];
     upper_input_bounds.dVs_u = jsonBounds["dVsu"];
 }
+
 }
