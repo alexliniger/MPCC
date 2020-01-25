@@ -16,11 +16,12 @@
 
 #include "model_integrator_test.h"
 namespace mpcc{
-int testIntegrator(){
+int testIntegrator(const Integrator &integrator){
 
     // test integrator by comparing Euler forward to RK4
     // 3 differnet test points, hand picked, going straight and random
-    Integrator integrator;
+
+    //Integrator integrator;
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Hand picked x and u
     StateVector error1;
@@ -58,11 +59,12 @@ int testIntegrator(){
 
 }
 
-int testLinModel(){
+int testLinModel(const Integrator &integrator){
     // test Liniear model by comparing it to RK4
     // 3 differnet test cases, hand picked, going straight and test how good linear model generalizes
-    Integrator integrator;
-    Model model;
+
+    const Model model = integrator.getModel();
+    
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Hand picked x and u
     StateVector error1;

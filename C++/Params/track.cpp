@@ -16,26 +16,33 @@
 
 #include "track.h"
 namespace mpcc{
-TrackPos Track::getTrack()
+Track::Track(std::string file) 
 {
     /////////////////////////////////////////////////////
     // Loading Model and Constraint Parameters //////////
     /////////////////////////////////////////////////////
-    std::ifstream iTrack("Params/track.json");
+    std::ifstream iTrack(file);
     json jsonTrack;
     iTrack >> jsonTrack;
     // Model Parameters
-    std::vector<double> X = jsonTrack["X"];
-    std::vector<double> Y = jsonTrack["Y"];
+    std::vector<double> x = jsonTrack["X"];
+    X = Eigen::Map<Eigen::VectorXd>(x.data(), x.size());
+    std::vector<double> y = jsonTrack["Y"];
+    Y = Eigen::Map<Eigen::VectorXd>(y.data(), y.size());
+    
+    std::vector<double> x_inner = jsonTrack["X_i"];
+    X_inner = Eigen::Map<Eigen::VectorXd>(x_inner.data(), x_inner.size());
+    std::vector<double> y_inner = jsonTrack["Y_i"];
+    Y_inner = Eigen::Map<Eigen::VectorXd>(y_inner.data(), y_inner.size());
 
-    std::vector<double> X_inner = jsonTrack["X_i"];
-    std::vector<double> Y_inner = jsonTrack["Y_i"];
+    std::vector<double> x_outer = jsonTrack["X_o"];
+    X_outer = Eigen::Map<Eigen::VectorXd>(x_outer.data(), x_outer.size());
+    std::vector<double> y_outer = jsonTrack["Y_o"];
+    Y_outer = Eigen::Map<Eigen::VectorXd>(y_outer.data(), y_outer.size());
+}
 
-    std::vector<double> X_outer = jsonTrack["X_o"];
-    std::vector<double> Y_outer = jsonTrack["Y_o"];
-//    TrackPos track_xy;
-//    track_xy.X = Eigen::Map<Eigen::VectorXd>(X.data(), X.size());
-//    track_xy.Y = Eigen::Map<Eigen::VectorXd>(Y.data(), Y.size());
+TrackPos Track::getTrack()
+{
     return {Eigen::Map<Eigen::VectorXd>(X.data(), X.size()), Eigen::Map<Eigen::VectorXd>(Y.data(), Y.size()),
             Eigen::Map<Eigen::VectorXd>(X_inner.data(), X_inner.size()), Eigen::Map<Eigen::VectorXd>(Y_inner.data(), Y_inner.size()),
             Eigen::Map<Eigen::VectorXd>(X_outer.data(), X_outer.size()), Eigen::Map<Eigen::VectorXd>(Y_outer.data(), Y_outer.size())};

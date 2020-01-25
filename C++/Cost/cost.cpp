@@ -16,6 +16,16 @@
 
 #include "cost.h"
 namespace mpcc{
+Cost::Cost() 
+{
+    
+}
+
+Cost::Cost(CostParam cost_param) 
+{
+  cost_param_ = cost_param;
+}
+
 TrackPoint Cost::getRefPoint(const ArcLengthSpline &track,const State &x) const
 {
     // compute all the geometry information of the track at a given arc length
@@ -94,8 +104,8 @@ CostMatrix Cost::getBetaCost(const State &x) const
     // zero order term of beta approximation
     const double beta_zero = atan(vy/vx) - d_beta*stateToVector(x);
     // Q_beta = (qBeta*beta)^2 ~ x^T (qBeta*dBeta^T*dBeta) x + (qBeta*2*BetaZero*qBeta)^ x + const
-    const Q_MPC Q_beta = 2.0*cost_param.q_beta*d_beta.transpose()*d_beta;
-    const q_MPC q_beta = cost_param.q_beta*2.0*beta_zero*d_beta.transpose();
+    const Q_MPC Q_beta = 2.0*cost_param_.q_beta*d_beta.transpose()*d_beta;
+    const q_MPC q_beta = cost_param_.q_beta*2.0*beta_zero*d_beta.transpose();
 
     return {Q_beta,R_MPC::Zero(),S_MPC::Zero(),q_beta,r_MPC::Zero(),Z_MPC::Zero(),z_MPC::Zero()};
 }
@@ -111,19 +121,19 @@ CostMatrix Cost::getContouringCost(const ArcLengthSpline &track, const State &x,
     Eigen::Matrix2d ContouringCost;
     ContouringCost.setZero(2,2);
     if(k < N)
-        ContouringCost(0,0) = cost_param.q_c;
+        ContouringCost(0,0) = cost_param_.q_c;
     else
-        ContouringCost(0,0) = cost_param.q_c_N_mult*cost_param.q_c;
-    ContouringCost(1,1) = cost_param.q_l;
+        ContouringCost(0,0) = cost_param_.q_c_N_mult*cost_param_.q_c;
+    ContouringCost(1,1) = cost_param_.q_l;
     // contouring and lag error part
     Q_MPC Q_contouring_cost = Q_MPC::Zero();
     q_MPC q_contouring_cost = q_MPC::Zero();
     Q_contouring_cost = error_info.d_error.transpose()*ContouringCost*error_info.d_error;
     // regularization cost on yaw rate
     if(k<N)
-        Q_contouring_cost(si_index.r,si_index.r) = cost_param.q_r;
+        Q_contouring_cost(si_index.r,si_index.r) = cost_param_.q_r;
     else
-        Q_contouring_cost(si_index.r,si_index.r) = cost_param.q_r_N_mult*cost_param.q_r;
+        Q_contouring_cost(si_index.r,si_index.r) = cost_param_.q_r_N_mult*cost_param_.q_r;
 
     // solver interface expects 0.5 x^T Q x + q^T x
 //    Q_contouring_cost = 0.5*(Q_contouring_cost.transpose()+Q_contouring_cost);
@@ -133,7 +143,7 @@ CostMatrix Cost::getContouringCost(const ArcLengthSpline &track, const State &x,
     q_contouring_cost = 2.0*error_info.error*ContouringCost*error_info.d_error -
                         2.0*x_vec.adjoint()*error_info.d_error.adjoint()*ContouringCost*error_info.d_error;
     // progress maximization part
-    q_contouring_cost(si_index.vs) = -cost_param.q_vs;
+    q_contouring_cost(si_index.vs) = -cost_param_.q_vs;
 
     return {Q_contouring_cost,R_MPC::Zero(),S_MPC::Zero(),q_contouring_cost,r_MPC::Zero(),Z_MPC::Zero(),z_MPC::Zero()};
 }
@@ -144,13 +154,13 @@ CostMatrix Cost::getInputCost() const
     Q_MPC Q_input_cost = Q_MPC::Zero();
     R_MPC R_input_cost = R_MPC::Zero();
     // cost of "real" inputs
-    Q_input_cost(si_index.D,si_index.D) = cost_param.r_D;
-    Q_input_cost(si_index.delta,si_index.delta) = cost_param.r_delta;
-    Q_input_cost(si_index.vs,si_index.vs) = cost_param.r_vs;
+    Q_input_cost(si_index.D,si_index.D) = cost_param_.r_D;
+    Q_input_cost(si_index.delta,si_index.delta) = cost_param_.r_delta;
+    Q_input_cost(si_index.vs,si_index.vs) = cost_param_.r_vs;
     // quadratic part
-    R_input_cost(si_index.dD,si_index.dD) = cost_param.r_dD;
-    R_input_cost(si_index.dDelta,si_index.dDelta) = cost_param.r_dDelta;
-    R_input_cost(si_index.dVs,si_index.dVs) = cost_param.r_dVs;
+    R_input_cost(si_index.dD,si_index.dD) = cost_param_.r_dD;
+    R_input_cost(si_index.dDelta,si_index.dDelta) = cost_param_.r_dDelta;
+    R_input_cost(si_index.dVs,si_index.dVs) = cost_param_.r_dVs;
     // solver interface expects 0.5 u^T R u + r^T u
     Q_input_cost = 2.0*Q_input_cost;
     R_input_cost = 2.0*R_input_cost;
@@ -165,13 +175,13 @@ CostMatrix Cost::getSoftConstraintCost() const
     z_MPC z_cost = z_MPC::Ones();
     // cost of "real" inputs
 
-    Z_cost(si_index.con_track,si_index.con_track) = cost_param.sc_quad_track;
-    Z_cost(si_index.con_tire,si_index.con_tire) = cost_param.sc_quad_tire;
-    Z_cost(si_index.con_alpha,si_index.con_alpha) = cost_param.sc_quad_alpha;
+    Z_cost(si_index.con_track,si_index.con_track) = cost_param_.sc_quad_track;
+    Z_cost(si_index.con_tire,si_index.con_tire) = cost_param_.sc_quad_tire;
+    Z_cost(si_index.con_alpha,si_index.con_alpha) = cost_param_.sc_quad_alpha;
 
-    z_cost(si_index.con_track) = cost_param.sc_lin_track;
-    z_cost(si_index.con_tire) = cost_param.sc_lin_tire;
-    z_cost(si_index.con_alpha) = cost_param.sc_lin_alpha;
+    z_cost(si_index.con_track) = cost_param_.sc_lin_track;
+    z_cost(si_index.con_tire) = cost_param_.sc_lin_tire;
+    z_cost(si_index.con_alpha) = cost_param_.sc_lin_alpha;
 
     return {Q_MPC::Zero(),R_MPC::Zero(),S_MPC::Zero(),q_MPC::Zero(),r_MPC::Zero(),Z_cost,z_cost};
 }

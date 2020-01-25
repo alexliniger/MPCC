@@ -49,7 +49,14 @@ struct ErrorInfo{
 class Cost {
 public:
     CostMatrix getCost(const ArcLengthSpline &track, const State &x,int k) const;
+
+    //void setCosts(const CostParam &cost_param) { cost_param_ = cost_param; }
+    Cost(CostParam cost_param);
+    Cost();
+
 private:
+    CostParam cost_param_;
+
     TrackPoint getRefPoint(const ArcLengthSpline &track,const State &x) const;
     ErrorInfo  getErrorInfo(const ArcLengthSpline &track,const State &x) const;
 

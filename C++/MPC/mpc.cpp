@@ -55,8 +55,8 @@ void MPC::setStage(const State &xk, const Input &uk, const int time_step)
     stages_[time_step].l_bounds_s = bounds_.getBoundsLS();
     stages_[time_step].u_bounds_s = bounds_.getBoundsUS();
 
-    stages_[time_step].l_bounds_x(si_index.s) = initial_guess_[time_step].xk.s - param.s_trust_region;
-    stages_[time_step].u_bounds_x(si_index.s) = initial_guess_[time_step].xk.s + param.s_trust_region;
+    stages_[time_step].l_bounds_x(si_index.s) = initial_guess_[time_step].xk.s - model_.getParam().s_trust_region;
+    stages_[time_step].u_bounds_x(si_index.s) = initial_guess_[time_step].xk.s + model_.getParam().s_trust_region;
 }
 
 void MPC::updateInitialGuess(const State &x0)
@@ -109,14 +109,14 @@ void MPC::generateNewInitialGuess(const State &x0)
         initial_guess_[i].xk.setZero();
         initial_guess_[i].uk.setZero();
 
-        initial_guess_[i].xk.s = initial_guess_[i-1].xk.s + TS*param.initial_velocity;
+        initial_guess_[i].xk.s = initial_guess_[i-1].xk.s + TS*model_.getParam().initial_velocity;
         Eigen::Vector2d track_pos_i = track_.getPostion(initial_guess_[i].xk.s);
         Eigen::Vector2d track_dpos_i = track_.getDerivative(initial_guess_[i].xk.s);
         initial_guess_[i].xk.X = track_pos_i(0);
         initial_guess_[i].xk.Y = track_pos_i(1);
         initial_guess_[i].xk.phi = atan2(track_dpos_i(1),track_dpos_i(0));
-        initial_guess_[i].xk.vx = param.initial_velocity;
-        initial_guess_[i].xk.vs = param.initial_velocity;
+        initial_guess_[i].xk.vx = model_.getParam().initial_velocity;
+        initial_guess_[i].xk.vs = model_.getParam().initial_velocity;
     }
     unwrapInitialGuess();
     valid_initial_guess_ = true;
@@ -185,7 +185,7 @@ void MPC::setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y){
     track_.gen2DSpline(X,Y);
 }
 
-MPC::MPC(int n_sqp, int n_reset,double sqp_mixing)
+MPC::MPC(int n_sqp, int n_reset,double sqp_mixing, Param param, CostParam cost_param, BoundsParam bounds_param)
 :valid_initial_guess_(false),solver_interface_(new HpipmInterface())
 {
     n_sqp_ = n_sqp;
@@ -193,5 +193,12 @@ MPC::MPC(int n_sqp, int n_reset,double sqp_mixing)
     n_non_solves_ = 0;
     n_no_solves_sqp_ = 0;
     n_reset_ = n_reset;
+    integrator_.setParam(param);
+    model_ = integrator_.getModel();
+    constraints_ = Constraints(param);
+    cost_ = Cost(cost_param);
+    bounds_ = Bounds(bounds_param);
+
+    track_.setParam(param);
 }
 }

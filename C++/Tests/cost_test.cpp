@@ -16,8 +16,9 @@
 
 #include "cost_test.h"
 namespace mpcc{
-int testCost(){
-    Cost cost;
+int testCost(const CostParam &cost_param){
+    Cost cost = Cost(cost_param);
+    //cost.setCosts(cost_param);
     ArcLengthSpline track;
     genRoundTrack(track);
 

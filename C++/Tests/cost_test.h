@@ -20,7 +20,7 @@
 #include "Cost/cost.h"
 #include "constratins_test.h"
 namespace mpcc{
-int testCost();
+int testCost(const CostParam &cost_param);
 }
 
 #endif //MPCC_COST_TEST_H

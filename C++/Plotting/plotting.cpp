@@ -16,6 +16,10 @@
 
 #include "plotting.h"
 namespace mpcc{
+
+Plotting::Plotting(Model model) {
+    model_ = model;
+}
 void Plotting::plotRun(const std::list<MPCReturn> &log, const TrackPos &track_xy) const
 {
 
@@ -79,8 +83,8 @@ void Plotting::plotRun(const std::list<MPCReturn> &log, const TrackPos &track_xy
     std::vector<double> plot_eps_y;
     for(double t = 0; t<2*M_PI;t+=0.1)
     {
-        plot_eps_x.push_back(cos(t)*param.Dr*param.e_eps);
-        plot_eps_y.push_back(sin(t)*param.Dr*1./param.e_long*param.e_eps);
+        plot_eps_x.push_back(cos(t)*model_.getParam().Dr*model_.getParam().e_eps);
+        plot_eps_y.push_back(sin(t)*model_.getParam().Dr*1./model_.getParam().e_long*model_.getParam().e_eps);
     }
 
     plt::figure(1);
@@ -192,10 +196,10 @@ void Plotting::plotBox(const State &x0) const
 {
     std::vector<double> corner_x;
     std::vector<double> corner_y;
-    double body_xl = std::cos(x0.phi)*param.car_l;
-    double body_xw = std::sin(x0.phi)*param.car_w;
-    double body_yl = std::sin(x0.phi)*param.car_l;
-    double body_yw = -std::cos(x0.phi)*param.car_w;
+    double body_xl = std::cos(x0.phi)*model_.getParam().car_l;
+    double body_xw = std::sin(x0.phi)*model_.getParam().car_w;
+    double body_yl = std::sin(x0.phi)*model_.getParam().car_l;
+    double body_yw = -std::cos(x0.phi)*model_.getParam().car_w;
 
     corner_x.push_back(x0.X + body_xl + body_xw);
     corner_x.push_back(x0.X + body_xl - body_xw);
