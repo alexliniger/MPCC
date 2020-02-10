@@ -46,11 +46,13 @@ TrackPoint Cost::getRefPoint(const ArcLengthSpline &track,const State &x) const
     const double ddx_ref = ddpos_ref(0);
     const double ddy_ref = ddpos_ref(1);
     // curvature
-    double dtheta_ref = 0.0;
-    if(std::abs(ddx_ref*ddx_ref + ddy_ref*ddy_ref)>=1e0){
-        dtheta_ref = (dx_ref*ddy_ref - dy_ref*ddx_ref)
-                                 /(ddx_ref*ddx_ref + ddy_ref*ddy_ref); //curvature
-    }
+    double dtheta_ref_nom = (dx_ref*ddy_ref - dy_ref*ddx_ref);
+    double dtheta_ref_denom = (ddx_ref*ddx_ref + ddy_ref*ddy_ref);
+    if(dtheta_ref_nom < 1e-4)
+        dtheta_ref_nom = 0;
+    if(dtheta_ref_denom < 1e-2)
+        dtheta_ref_denom = 1e-2;
+    double dtheta_ref = dtheta_ref_nom/dtheta_ref_denom;
 
     return {x_ref,y_ref,dx_ref,dy_ref,theta_ref,dtheta_ref};
 }
