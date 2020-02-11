@@ -17,6 +17,14 @@
 #include "arc_length_spline.h"
 
 namespace mpcc{
+ArcLengthSpline::ArcLengthSpline()
+{ 
+}
+ArcLengthSpline::ArcLengthSpline(const PathToJson &path)
+:param_(Param(path.param_path))
+{
+}
+
 void ArcLengthSpline::setData(const Eigen::VectorXd &X_in,const Eigen::VectorXd &Y_in)
 {
     // set input data if x and y have same length

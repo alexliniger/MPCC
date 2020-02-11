@@ -23,6 +23,6 @@
 #include "Spline/arc_length_spline.h"
 namespace mpcc{
 int testSpline();
-int testArcLengthSpline();
+int testArcLengthSpline(const PathToJson &path);
 }
 #endif //MPCC_SPLINE_TEST_H

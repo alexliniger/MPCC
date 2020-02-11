@@ -19,6 +19,7 @@
 
 #include "config.h"
 #include "types.h"
+#include "Params/params.h"
 namespace mpcc{
 //Return
 struct LinModelMatrix {
@@ -77,14 +78,13 @@ public:
 
     LinModelMatrix getLinModel(const State &x, const Input &u) const;
 
-    void setParam(const Param &params) { param_ = params; }
-    Param getParam(void) const { return param_; }
-
+    Model();
+    Model(const PathToJson &path);
 private:
-    Param param_;
-
     LinModelMatrix getModelJacobian(const State &x, const Input &u) const;
     LinModelMatrix discretizeModel(const LinModelMatrix &lin_model_c) const;
+
+    Param param_;
 };
 }
 #endif //MPCC_MODEL_H

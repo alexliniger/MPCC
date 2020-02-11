@@ -19,6 +19,7 @@
 
 #include "config.h"
 #include "types.h"
+#include "Params/params.h"
 #include "Spline/arc_length_spline.h"
 #include "Model/model.h"
 #include "Model/integrator.h"
@@ -77,7 +78,8 @@ public:
 
     void setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y);
 
-    MPC(int n_sqp, int n_reset, double sqp_mixing, Param params, CostParam cost_param, BoundsParam bounds_param);
+    MPC();
+    MPC(int n_sqp, int n_reset, double sqp_mixing,const PathToJson &path);
 
 private:
     bool valid_initial_guess_;
@@ -90,6 +92,11 @@ private:
     void setMPCProblem();
 
     void setStage(const State &xk, const Input &uk, int time_step);
+
+    CostMatrix normalizeCost(const CostMatrix &cost_mat);
+    LinModelMatrix normalizeDynamics(const LinModelMatrix &lin_model);
+    ConstrainsMatrix normalizeCon(const ConstrainsMatrix &con_mat);
+    std::array<OptVariables,N+1> deNormalizeSolution(const std::array<OptVariables,N+1> &solution);
 
     void updateInitialGuess(const State &x0);
 
@@ -105,12 +112,16 @@ private:
     int n_non_solves_;
     int n_no_solves_sqp_;
     int n_reset_;
+
     Model model_;
     Integrator integrator_;
     Cost cost_;
     Constraints constraints_;
-    Bounds bounds_;
     ArcLengthSpline track_;
+
+    Bounds bounds_;
+    NormalizationParam normalization_param_;
+    Param param_;
 
     std::unique_ptr<SolverInterface> solver_interface_;
 };

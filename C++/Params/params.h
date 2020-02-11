@@ -17,10 +17,13 @@
 #ifndef MPCC_PARAMS_H
 #define MPCC_PARAMS_H
 
-#include <iostream>
-#include <fstream>
+// #include <iostream>
+// #include <fstream>
 #include <vector>
 #include <nlohmann/json.hpp>
+#include "config.h"
+#include "types.h"
+
 namespace mpcc{
 //used namespace
 using json = nlohmann::json;
@@ -53,7 +56,7 @@ public:
     double r_in;
     double r_out;
 
-     double max_dist_proj;
+    double max_dist_proj;
 
     double e_long;
     double e_eps;
@@ -62,6 +65,8 @@ public:
 
     double initial_velocity;
     double s_trust_region;
+
+    double vx_zero;
 
     Param();
     Param(std::string file);
@@ -74,9 +79,12 @@ public:
     double q_l;
     double q_vs;
 
+    double q_mu;
+
     double q_r;
 
     double q_beta;
+    int beta_kin_cost;
 
     double r_D;
     double r_delta;
@@ -148,6 +156,21 @@ public:
     BoundsParam();
     BoundsParam(std::string file);
 
+};
+
+class NormalizationParam{
+public:
+    TX_MPC T_x;
+    TX_MPC T_x_inv;
+
+    TU_MPC T_u;
+    TU_MPC T_u_inv;
+
+    TS_MPC T_s;
+    TS_MPC T_s_inv;
+
+    NormalizationParam();
+    NormalizationParam(std::string file);
 };
 }
 #endif //MPCC_PARAMS_H

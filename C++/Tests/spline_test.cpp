@@ -83,11 +83,11 @@ int testSpline() {
 
 }
 
-int testArcLengthSpline(){
+int testArcLengthSpline(const PathToJson &path){
     // test 2-D arc length spline approach
     // given a circle with randomly distributed points
 
-    ArcLengthSpline twoDspline;
+    ArcLengthSpline twoDspline = ArcLengthSpline(path);
 
     int NT = 50;    //number of "training" points
     int NV = 200;   //number of validation points points

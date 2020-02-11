@@ -35,5 +35,7 @@
   "maxAlpha" : 0.6,
 
   "initial_velocity" : 1.0,
-  "s_trust_region" : 0.2
+  "s_trust_region" : 0.2,
+
+  "vx_zero": 0.3
 }

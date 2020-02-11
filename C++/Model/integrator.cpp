@@ -16,11 +16,14 @@
 
 #include "integrator.h"
 namespace mpcc{
-Integrator::Integrator(){
+Integrator::Integrator()
+{
+    std::cout << "default constructor, not everything is initialized properly" << std::endl;
 }
 
-Integrator::Integrator(Param param){
-  setParam(param);
+Integrator::Integrator(const PathToJson &path)
+:model_(path)
+{
 }
 
 State Integrator::RK4(const State &x, const Input &u,const double ts) const

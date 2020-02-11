@@ -30,39 +30,36 @@ using json = nlohmann::json;
 int main() {
 
     using namespace mpcc;
-
-    Param param = Param("Params/model.json");
-    CostParam cost_param = CostParam("Params/cost.json");
-    BoundsParam bounds_param = BoundsParam("Params/bounds.json");
-    Track track = Track("Params/track.json");
-
     std::ifstream iConfig("Params/config.json");
     json jsonConfig;
     iConfig >> jsonConfig;
 
-    Integrator integrator = Integrator(param);
-    Model model = integrator.getModel();
+    PathToJson json_paths {jsonConfig["model_path"],
+                           jsonConfig["cost_path"],
+                           jsonConfig["bounds_path"],
+                           jsonConfig["track_path"],
+                           jsonConfig["normalization_path"]};
 
-//    std::cout << testSpline() << std::endl;
-//    std::cout << testArcLengthSpline() << std::endl;
-//
-//    std::cout << testIntegrator(integrator) << std::endl;
-//    std::cout << testLinModel(integrator) << std::endl;
-//
-//    std::cout << testAlphaConstraint(param, model) << std::endl;
-//    std::cout << testTireForceConstraint(param, model) << std::endl;
-//    std::cout << testTrackConstraint(param) << std::endl;
-//
-//    std::cout << testCost(cost_param) << std::endl;
-//    return 0;
+    // std::cout << testSpline() << std::endl;
+    // std::cout << testArcLengthSpline(json_paths) << std::endl;
 
+    // std::cout << testIntegrator(json_paths) << std::endl;
+    // std::cout << testLinModel(json_paths) << std::endl;
 
-    Plotting plotter = Plotting(model);
+    // std::cout << testAlphaConstraint(json_paths) << std::endl;
+    // std::cout << testTireForceConstraint(json_paths) << std::endl;
+    // std::cout << testTrackConstraint(json_paths) << std::endl;
 
+    // std::cout << testCost(json_paths) << std::endl;
+
+    Integrator integrator = Integrator(json_paths);
+    Plotting plotter = Plotting(json_paths);
+
+    Track track = Track(json_paths.track_path);
     TrackPos track_xy = track.getTrack();
 
     std::list<MPCReturn> log;
-    MPC mpc(jsonConfig["n_sqp"],jsonConfig["n_reset"],jsonConfig["sqp_mixing"], param, cost_param, bounds_param);
+    MPC mpc(jsonConfig["n_sqp"],jsonConfig["n_reset"],jsonConfig["sqp_mixing"],json_paths);
     mpc.setTrack(track_xy.X,track_xy.Y);
     State x0 = {track_xy.X(0),track_xy.Y(0),-1*M_PI/4.0,0.05,0,0,0,1.0,0,1.0};
     for(int i=0;i<jsonConfig["n_sim"];i++)

@@ -37,10 +37,10 @@ struct OneDConstraint {
 
 class Constraints {
 public:
-    Constraints();
-    Constraints(Param params);
-    
     ConstrainsMatrix getConstraints(const ArcLengthSpline &track,const State &x,const Input &u) const;
+
+    Constraints();
+    Constraints(const PathToJson &path);
 private:
     OneDConstraint getTrackConstraints(const ArcLengthSpline &track,const State &x) const;
 
@@ -51,6 +51,7 @@ private:
     C_i_MPC getAlphaConstraintFrontJac(const State &x) const;
 
     Model model_;
+    Param param_;
 };
 }
 

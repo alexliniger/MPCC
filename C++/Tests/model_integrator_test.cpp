@@ -16,7 +16,8 @@
 
 #include "model_integrator_test.h"
 namespace mpcc{
-int testIntegrator(const Integrator &integrator){
+int testIntegrator(const PathToJson &path){
+    const Integrator integrator = Integrator(path);
 
     // test integrator by comparing Euler forward to RK4
     // 3 differnet test points, hand picked, going straight and random
@@ -59,11 +60,11 @@ int testIntegrator(const Integrator &integrator){
 
 }
 
-int testLinModel(const Integrator &integrator){
+int testLinModel(const PathToJson &path){
     // test Liniear model by comparing it to RK4
     // 3 differnet test cases, hand picked, going straight and test how good linear model generalizes
-
-    const Model model = integrator.getModel();
+    const Integrator integrator = Integrator(path);
+    const Model model = Model(path);
     
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Hand picked x and u

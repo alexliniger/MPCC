@@ -16,10 +16,10 @@
 
 #include "cost_test.h"
 namespace mpcc{
-int testCost(const CostParam &cost_param){
-    Cost cost = Cost(cost_param);
+int testCost(const PathToJson &path){
+    Cost cost = Cost(path);
     //cost.setCosts(cost_param);
-    ArcLengthSpline track;
+    ArcLengthSpline track = ArcLengthSpline(path);
     genRoundTrack(track);
 
 

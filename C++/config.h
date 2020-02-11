@@ -24,11 +24,9 @@
 #include <Eigen/Dense>
 #include <unsupported/Eigen/MatrixFunctions>
 
-#include "Params/params.h"
-
 namespace mpcc{
 
-#define MAX(a,b) (a < b) ? b : a
+// #define MAX(a,b) (a < b) ? b : a
 
 #define NX 10
 #define NU 3
@@ -40,7 +38,7 @@ namespace mpcc{
 static constexpr int N = 60;
 static constexpr double TS = 0.02;
 static constexpr double INF = 1E5;
-static constexpr int N_SPLINE = 1000;
+static constexpr int N_SPLINE = 5000;
 
 
 struct StateInputIndex{

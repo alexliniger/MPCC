@@ -19,6 +19,8 @@
 
 #include "cubic_spline.h"
 #include "types.h"
+#include "Params/params.h"
+#include <map>
 
 namespace mpcc{
 //return value
@@ -35,21 +37,6 @@ struct PathData{
 };
 
 class ArcLengthSpline {
-private:
-
-    PathData path_data_;      // initial data and data used for successive fitting
-//    PathData pathDataFinal; // final data
-    CubicSpline spline_x_;
-    CubicSpline spline_y_;
-    Param param_;
-
-    void setData(const Eigen::VectorXd &X_in,const Eigen::VectorXd &Y_in);
-    void setRegularData(const Eigen::VectorXd &X_in,const Eigen::VectorXd &Y_in,const Eigen::VectorXd &s_in);
-    Eigen::VectorXd compArcLength(const Eigen::VectorXd &X_in,const Eigen::VectorXd &Y_in) const;
-    PathData resamplePath(const CubicSpline &initial_spline_x,const CubicSpline &initial_spline_y,double total_arc_length) const;
-    RawPath outlierRemoval(const Eigen::VectorXd &X_original,const Eigen::VectorXd &Y_original) const;
-    void fitSpline(const Eigen::VectorXd &X,const Eigen::VectorXd &Y);
-    double unwrapInput(double x) const;
 public:
     // X and Y spline used for final spline fit
     void gen2DSpline(const Eigen::VectorXd &X,const Eigen::VectorXd &Y);
@@ -58,8 +45,25 @@ public:
     Eigen::Vector2d getSecondDerivative(double) const;
     double getLength() const;
     double porjectOnSpline(const State &x) const;
-    void setParam(const Param &param) { param_ = param; };
 
+    ArcLengthSpline();
+    ArcLengthSpline(const PathToJson &path);
+    // void setParam(const Param &param) { param_ = param; };
+
+private:
+    void setData(const Eigen::VectorXd &X_in,const Eigen::VectorXd &Y_in);
+    void setRegularData(const Eigen::VectorXd &X_in,const Eigen::VectorXd &Y_in,const Eigen::VectorXd &s_in);
+    Eigen::VectorXd compArcLength(const Eigen::VectorXd &X_in,const Eigen::VectorXd &Y_in) const;
+    PathData resamplePath(const CubicSpline &initial_spline_x,const CubicSpline &initial_spline_y,double total_arc_length) const;
+    RawPath outlierRemoval(const Eigen::VectorXd &X_original,const Eigen::VectorXd &Y_original) const;
+    void fitSpline(const Eigen::VectorXd &X,const Eigen::VectorXd &Y);
+    double unwrapInput(double x) const;
+
+    PathData path_data_;      // initial data and data used for successive fitting
+//    PathData pathDataFinal; // final data
+    CubicSpline spline_x_;
+    CubicSpline spline_y_;
+    Param param_;
 };
 }
 #endif //MPCC_ARC_LENGTH_SPLINE_H

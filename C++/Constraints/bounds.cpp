@@ -18,6 +18,7 @@
 namespace mpcc{
 Bounds::Bounds()
 {
+    std::cout << "default constructor, not everything is initialized properly" << std::endl;
 }
 
 Bounds::Bounds(BoundsParam bounds_param) 

@@ -20,7 +20,7 @@
 #include "Cost/cost.h"
 #include "constratins_test.h"
 namespace mpcc{
-int testCost(const CostParam &cost_param);
+int testCost(const PathToJson &path);
 }
 
 #endif //MPCC_COST_TEST_H

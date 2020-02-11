@@ -29,12 +29,7 @@ public:
     State simTimeStep(const State &x, const Input &u,double ts) const;
 
     Integrator();
-
-    Integrator(Param param);
-
-    void setParam(const Param &param) { model_.setParam(param); }
-
-    Model getModel(void) const { return model_; }
+    Integrator(const PathToJson &path);
 
 private:
     const double fine_time_step_ = 0.001;

@@ -50,20 +50,22 @@ class Cost {
 public:
     CostMatrix getCost(const ArcLengthSpline &track, const State &x,int k) const;
 
-    //void setCosts(const CostParam &cost_param) { cost_param_ = cost_param; }
-    Cost(CostParam cost_param);
+    Cost(const PathToJson &path);
     Cost();
 
 private:
-    CostParam cost_param_;
-
     TrackPoint getRefPoint(const ArcLengthSpline &track,const State &x) const;
     ErrorInfo  getErrorInfo(const ArcLengthSpline &track,const State &x) const;
 
     CostMatrix getContouringCost(const ArcLengthSpline &track, const State &x,int k) const;
+    CostMatrix getHeadingCost(const ArcLengthSpline &track, const State &x,int k) const;
     CostMatrix getInputCost() const;
     CostMatrix getBetaCost(const State &x) const;
+    CostMatrix getBetaKinCost(const State &x) const;
     CostMatrix getSoftConstraintCost() const;
+
+    CostParam cost_param_;
+    Param param_;
 };
 }
 #endif //MPCC_COST_H

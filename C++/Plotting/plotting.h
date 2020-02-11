@@ -19,6 +19,7 @@
 
 #include "config.h"
 #include "types.h"
+#include "Params/params.h"
 #include "Params/track.h"
 #include <matplotlibcpp.h>
 #include <vector>
@@ -33,12 +34,13 @@ public:
     void plotRun(const std::list<MPCReturn> &log, const TrackPos &track_xy) const;
     void plotSim(const std::list<MPCReturn> &log, const TrackPos &track_xy) const;
 
-    Plotting(Model model);
+    Plotting(PathToJson path);
 
 private:
     void plotBox(const State &x0) const;
 
     Model model_;
+    Param param_;
 };
 }
 

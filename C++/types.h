@@ -58,10 +58,10 @@ struct State{
             s += track_length;
     }
 
-    void vxNonZero()
+    void vxNonZero(double vx_zero)
     {
-        if(vx < 0.3){
-            vx = 0.3;
+        if(vx < vx_zero){
+            vx = vx_zero;
             vy = 0.0;
             r = 0.0;
             delta = 0.0;
@@ -80,6 +80,14 @@ struct Input{
         dDelta = 0.0;
         dVs = 0.0;
     }
+};
+
+struct PathToJson{
+    const std::string param_path;
+    const std::string cost_path;
+    const std::string bounds_path;
+    const std::string track_path;
+    const std::string normalization_path;
 };
 
 typedef Eigen::Matrix<double,NX,1> StateVector;
@@ -103,6 +111,10 @@ typedef Eigen::Matrix<double,NPC,1> d_MPC;
 
 typedef Eigen::Matrix<double,NS,NS> Z_MPC;
 typedef Eigen::Matrix<double,NS,1> z_MPC;
+
+typedef Eigen::Matrix<double,NX,NX> TX_MPC;
+typedef Eigen::Matrix<double,NU,NU> TU_MPC;
+typedef Eigen::Matrix<double,NS,NS> TS_MPC;
 
 typedef Eigen::Matrix<double,NX,1> Bounds_x;
 typedef Eigen::Matrix<double,NU,1> Bounds_u;

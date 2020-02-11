@@ -16,6 +16,16 @@
 
 #include "model.h"
 namespace mpcc{
+Model::Model()
+{
+    std::cout << "default constructor, not everything is initialized properly" << std::endl;
+}
+
+Model::Model(const PathToJson &path)
+:param_(Param(path.param_path))
+{
+}
+
 double Model::getSlipAngleFront(const State &x) const
 {
     // compute slip angels given current state

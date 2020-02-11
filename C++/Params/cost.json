@@ -4,9 +4,12 @@
   "qL" : 500.0,
   "qVs" : 0.02,
 
+  "qMu": 0.001,
+
   "qR" : 1E-5,
 
   "qBeta" : 1E-2,
+  "betaKin": 0,
 
   "rD" : 1E-6,
   "rDelta" : 1E-6,

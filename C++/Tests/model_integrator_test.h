@@ -20,7 +20,7 @@
 #include "Model/model.h"
 #include "Model/integrator.h"
 namespace mpcc{
-int testIntegrator(const Integrator &integrator);
-int testLinModel(const Integrator &integrator);
+int testIntegrator(const PathToJson &path);
+int testLinModel(const PathToJson &path);
 }
 #endif //MPCC_MODEL_INTEGRATOR_TEST_H

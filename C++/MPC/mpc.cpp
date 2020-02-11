@@ -17,6 +17,30 @@
 #include "mpc.h"
 
 namespace mpcc{
+MPC::MPC()
+{
+    std::cout << "default constructor, not everything is initialized properly" << std::endl;
+}
+
+MPC::MPC(int n_sqp, int n_reset,double sqp_mixing,const PathToJson &path)
+:valid_initial_guess_(false),
+solver_interface_(new HpipmInterface()),
+param_(Param(path.param_path)),
+normalization_param_(NormalizationParam(path.normalization_path)),
+bounds_(BoundsParam(path.bounds_path)),
+constraints_(Constraints(path)),
+cost_(Cost(path)),
+integrator_(Integrator(path)),
+model_(Model(path)),
+track_(ArcLengthSpline(path))
+{
+    n_sqp_ = n_sqp;
+    sqp_mixing_ = sqp_mixing;
+    n_non_solves_ = 0;
+    n_no_solves_sqp_ = 0;
+    n_reset_ = n_reset;
+}
+
 void MPC::setMPCProblem()
 {
     for(int i=0;i<=N;i++)
@@ -42,22 +66,69 @@ void MPC::setStage(const State &xk, const Input &uk, const int time_step)
     }
 
     State xk_nz = xk;
-    xk_nz.vxNonZero();
+    xk_nz.vxNonZero(param_.vx_zero);
 
-    stages_[time_step].cost_mat = cost_.getCost(track_,xk_nz,time_step);
-    stages_[time_step].lin_model = model_.getLinModel(xk_nz,uk);
-    stages_[time_step].constrains_mat = constraints_.getConstraints(track_,xk_nz,uk);
-    
-    stages_[time_step].l_bounds_x = bounds_.getBoundsLX();
-    stages_[time_step].u_bounds_x = bounds_.getBoundsUX();
-    stages_[time_step].l_bounds_u = bounds_.getBoundsLU();
-    stages_[time_step].u_bounds_u = bounds_.getBoundsUU();
-    stages_[time_step].l_bounds_s = bounds_.getBoundsLS();
-    stages_[time_step].u_bounds_s = bounds_.getBoundsUS();
+    stages_[time_step].cost_mat = normalizeCost(cost_.getCost(track_,xk_nz,time_step));
+    stages_[time_step].lin_model = normalizeDynamics(model_.getLinModel(xk_nz,uk));
+    stages_[time_step].constrains_mat = normalizeCon(constraints_.getConstraints(track_,xk_nz,uk));
 
-    stages_[time_step].l_bounds_x(si_index.s) = initial_guess_[time_step].xk.s - model_.getParam().s_trust_region;
-    stages_[time_step].u_bounds_x(si_index.s) = initial_guess_[time_step].xk.s + model_.getParam().s_trust_region;
+    stages_[time_step].l_bounds_x = normalization_param_.T_x_inv*bounds_.getBoundsLX();
+    stages_[time_step].u_bounds_x = normalization_param_.T_x_inv*bounds_.getBoundsUX();
+    stages_[time_step].l_bounds_u = normalization_param_.T_u_inv*bounds_.getBoundsLU();
+    stages_[time_step].u_bounds_u = normalization_param_.T_u_inv*bounds_.getBoundsUU();
+    stages_[time_step].l_bounds_s = normalization_param_.T_s_inv*bounds_.getBoundsLS();
+    stages_[time_step].u_bounds_s = normalization_param_.T_s_inv*bounds_.getBoundsUS();
+
+    stages_[time_step].l_bounds_x(si_index.s) = normalization_param_.T_x_inv(si_index.s,si_index.s)*
+                                                (initial_guess_[time_step].xk.s - param_.s_trust_region);//*initial_guess_[time_step].xk.vs;
+    stages_[time_step].u_bounds_x(si_index.s) = normalization_param_.T_x_inv(si_index.s,si_index.s)*
+                                                (initial_guess_[time_step].xk.s + param_.s_trust_region);//*initial_guess_[time_step].xk.vs;
+
 }
+
+CostMatrix MPC::normalizeCost(const CostMatrix &cost_mat)
+{
+    const Q_MPC Q = normalization_param_.T_x*cost_mat.Q*normalization_param_.T_x;
+    const R_MPC R = normalization_param_.T_u*cost_mat.R*normalization_param_.T_u;
+    const q_MPC q = normalization_param_.T_x*cost_mat.q;
+    const r_MPC r = normalization_param_.T_u*cost_mat.r;
+    const Z_MPC Z = normalization_param_.T_s*cost_mat.Z*normalization_param_.T_s;
+    const z_MPC z = normalization_param_.T_s*cost_mat.z;
+    return {Q,R,S_MPC::Zero(),q,r,Z,z};
+}
+
+LinModelMatrix MPC::normalizeDynamics(const LinModelMatrix &lin_model)
+{
+    const A_MPC A = normalization_param_.T_x_inv*lin_model.A*normalization_param_.T_x;
+    const B_MPC B = normalization_param_.T_x_inv*lin_model.B*normalization_param_.T_u;
+    const g_MPC g = normalization_param_.T_x_inv*lin_model.g;
+    return {A,B,g};
+}
+
+ConstrainsMatrix MPC::normalizeCon(const ConstrainsMatrix &con_mat)
+{
+    const C_MPC C = con_mat.C*normalization_param_.T_x;
+    const D_MPC D =  con_mat.D*normalization_param_.T_u;
+    const d_MPC dl = con_mat.dl;
+    const d_MPC du = con_mat.du;
+    return {C,D,dl,du};
+}
+
+std::array<OptVariables,N+1> MPC::deNormalizeSolution(const std::array<OptVariables,N+1> &solution)
+{
+    std::array<OptVariables, N + 1> denormalized_solution;
+    StateVector updated_x_vec;
+    InputVector updated_u_vec;
+    for (int i = 0; i <= N; i++) {
+        updated_x_vec = normalization_param_.T_x*stateToVector(solution[i].xk);
+        updated_u_vec = normalization_param_.T_u*inputToVector(solution[i].uk);
+
+        denormalized_solution[i].xk = vectorToState(updated_x_vec);
+        denormalized_solution[i].uk = vectorToInput(updated_u_vec);
+    }
+    return denormalized_solution;
+}
+
 
 void MPC::updateInitialGuess(const State &x0)
 {
@@ -109,14 +180,14 @@ void MPC::generateNewInitialGuess(const State &x0)
         initial_guess_[i].xk.setZero();
         initial_guess_[i].uk.setZero();
 
-        initial_guess_[i].xk.s = initial_guess_[i-1].xk.s + TS*model_.getParam().initial_velocity;
+        initial_guess_[i].xk.s = initial_guess_[i-1].xk.s + TS*param_.initial_velocity;
         Eigen::Vector2d track_pos_i = track_.getPostion(initial_guess_[i].xk.s);
         Eigen::Vector2d track_dpos_i = track_.getDerivative(initial_guess_[i].xk.s);
         initial_guess_[i].xk.X = track_pos_i(0);
         initial_guess_[i].xk.Y = track_pos_i(1);
         initial_guess_[i].xk.phi = atan2(track_dpos_i(1),track_dpos_i(0));
-        initial_guess_[i].xk.vx = model_.getParam().initial_velocity;
-        initial_guess_[i].xk.vs = model_.getParam().initial_velocity;
+        initial_guess_[i].xk.vx = param_.initial_velocity;
+        initial_guess_[i].xk.vs = param_.initial_velocity;
     }
     unwrapInitialGuess();
     valid_initial_guess_ = true;
@@ -159,12 +230,16 @@ MPCReturn MPC::runMPC(State &x0)
     for(int i=0;i<n_sqp_;i++)
     {
         setMPCProblem();
-        optimal_solution_ = solver_interface_->solveMPC(stages_,x0, &solver_status);
+        State x0_normalized = vectorToState(normalization_param_.T_x_inv*stateToVector(x0));
+        optimal_solution_ = solver_interface_->solveMPC(stages_,x0_normalized, &solver_status);
+        optimal_solution_ = deNormalizeSolution(optimal_solution_);
         if(solver_status != 0)
             n_no_solves_sqp_++;
-        initial_guess_ = sqpSolutionUpdate(initial_guess_,optimal_solution_);
+        if(solver_status <= 1)
+            initial_guess_ = sqpSolutionUpdate(initial_guess_,optimal_solution_);
     }
-    const int max_error = MAX(n_sqp_-1,1);
+
+    const int max_error = std::max(n_sqp_-1,1);
     if(n_no_solves_sqp_ >= max_error)
         n_non_solves_++;
     else
@@ -185,20 +260,5 @@ void MPC::setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y){
     track_.gen2DSpline(X,Y);
 }
 
-MPC::MPC(int n_sqp, int n_reset,double sqp_mixing, Param param, CostParam cost_param, BoundsParam bounds_param)
-:valid_initial_guess_(false),solver_interface_(new HpipmInterface())
-{
-    n_sqp_ = n_sqp;
-    sqp_mixing_ = sqp_mixing;
-    n_non_solves_ = 0;
-    n_no_solves_sqp_ = 0;
-    n_reset_ = n_reset;
-    integrator_.setParam(param);
-    model_ = integrator_.getModel();
-    constraints_ = Constraints(param);
-    cost_ = Cost(cost_param);
-    bounds_ = Bounds(bounds_param);
 
-    track_.setParam(param);
-}
 }

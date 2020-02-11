@@ -18,6 +18,7 @@
 #define MPCC_CUBIC_SPLINE_H
 
 #include "config.h"
+#include <map>
 
 namespace mpcc{
 // spline parameter struct y = a + b dx + c dx^2 + d dx^3
@@ -38,17 +39,6 @@ struct SplineData{
 };
 
 class CubicSpline {
-private:
-    SplineParams spline_params_;
-    SplineData spline_data_;
-
-    bool data_set_;
-
-    void setRegularData(const Eigen::VectorXd &x_in,const Eigen::VectorXd &y_in,double delta_x);
-    void setData(const Eigen::VectorXd &x_in,const Eigen::VectorXd &y_in);
-    bool compSplineParams();
-    int getIndex(double x) const;
-    double unwrapInput(double x) const;
 public:
     void genSpline(const Eigen::VectorXd &x_in,const Eigen::VectorXd &y_in,bool is_regular);
     double getPoint(double x) const;
@@ -56,6 +46,17 @@ public:
     double getSecondDerivative(double x) const;
 
     CubicSpline();
+private:
+    bool data_set_;
+
+    void setRegularData(const Eigen::VectorXd &x_in,const Eigen::VectorXd &y_in,double delta_x);
+    void setData(const Eigen::VectorXd &x_in,const Eigen::VectorXd &y_in);
+    bool compSplineParams();
+    int getIndex(double x) const;
+    double unwrapInput(double x) const;
+
+    SplineParams spline_params_;
+    SplineData spline_data_;
 };
 }
 #endif //MPCC_CUBIC_SPLINE_H

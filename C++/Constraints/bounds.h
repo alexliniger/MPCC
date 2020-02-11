@@ -19,6 +19,8 @@
 
 #include "config.h"
 #include "types.h"
+#include "Params/params.h"
+
 namespace mpcc{
 class Bounds {
 public:

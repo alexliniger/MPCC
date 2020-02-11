@@ -18,12 +18,15 @@
 namespace mpcc{
     
 Param::Param(){
+    std::cout << "Default initialization of model params" << std::endl;
 }
 
 Param::Param(std::string file){
     /////////////////////////////////////////////////////
     // Loading Model and Constraint Parameters //////////
     /////////////////////////////////////////////////////
+    // std::cout << "model" << std::endl;
+
     std::ifstream iModel(file);
     json jsonModel;
     iModel >> jsonModel;
@@ -64,16 +67,20 @@ Param::Param(std::string file){
     // initial warm start and trust region (model dependent)
     initial_velocity = jsonModel["initial_velocity"];
     s_trust_region = jsonModel["s_trust_region"];
+
+    vx_zero = jsonModel["vx_zero"];
 }
 
 CostParam::CostParam(){
-
+    std::cout << "Default initialization of cost" << std::endl;
 }
 
 CostParam::CostParam(std::string file){
     /////////////////////////////////////////////////////
     // Loading Cost Parameters //////////////////////////
     /////////////////////////////////////////////////////
+    // std::cout << "cost" << std::endl;
+
     std::ifstream iCost(file);
     json jsonCost;
     iCost >> jsonCost;
@@ -82,9 +89,12 @@ CostParam::CostParam(std::string file){
     q_l = jsonCost["qL"];
     q_vs = jsonCost["qVs"];
 
+    q_mu = jsonCost["qMu"];
+
     q_r = jsonCost["qR"];
 
     q_beta = jsonCost["qBeta"];
+    beta_kin_cost = 1;//jsonCost["betaKin"];
 
     r_D = jsonCost["rD"];
     r_delta = jsonCost["rDelta"];
@@ -107,6 +117,7 @@ CostParam::CostParam(std::string file){
 }
 
 BoundsParam::BoundsParam() {
+    std::cout << "Default initialization of bounds" << std::endl;
 }
 
 BoundsParam::BoundsParam(std::string file) {
@@ -114,6 +125,8 @@ BoundsParam::BoundsParam(std::string file) {
     /////////////////////////////////////////////////////
     // Loading Cost Parameters //////////////////////////
     /////////////////////////////////////////////////////
+    // std::cout << "bounds" << std::endl;
+
     std::ifstream iBounds(file);
     json jsonBounds;
     iBounds >> jsonBounds;
@@ -147,6 +160,55 @@ BoundsParam::BoundsParam(std::string file) {
     upper_input_bounds.dD_u = jsonBounds["dDu"];
     upper_input_bounds.dDelta_u = jsonBounds["dDeltau"];
     upper_input_bounds.dVs_u = jsonBounds["dVsu"];
+}
+
+NormalizationParam::NormalizationParam(){
+    std::cout << "Default initialization of normalization" << std::endl;
+}
+
+NormalizationParam::NormalizationParam(std::string file)
+{
+    /////////////////////////////////////////////////////
+    // Loading Normalization Parameters /////////////////
+    /////////////////////////////////////////////////////
+    // std::cout << "norm" << std::endl;
+
+    std::ifstream iNorm(file);
+    json jsonNorm;
+    iNorm >> jsonNorm;
+
+    T_x.setIdentity();
+    T_x(si_index.X,si_index.X) = jsonNorm["X"];
+    T_x(si_index.Y,si_index.Y) = jsonNorm["Y"];
+    T_x(si_index.phi,si_index.phi) = jsonNorm["phi"];
+    T_x(si_index.vx,si_index.vx) = jsonNorm["vx"];
+    T_x(si_index.vy,si_index.vy) = jsonNorm["vy"];
+    T_x(si_index.r,si_index.r) = jsonNorm["r"];
+    T_x(si_index.s,si_index.s) = jsonNorm["s"];
+    T_x(si_index.D,si_index.D) = jsonNorm["D"];
+    T_x(si_index.delta,si_index.delta) = jsonNorm["delta"];
+    T_x(si_index.vs,si_index.vs) = jsonNorm["vs"];
+
+
+    T_x_inv.setIdentity();
+    for(int i = 0;i<NX;i++)
+    {
+        T_x_inv(i,i) = 1.0/T_x(i,i);
+    }
+
+    T_u.setIdentity();
+    T_u(si_index.dD,si_index.dD) = jsonNorm["dD"];
+    T_u(si_index.dDelta,si_index.dDelta) = jsonNorm["dDelta"];
+    T_u(si_index.dVs,si_index.dVs) = jsonNorm["dVs"];
+
+    T_u_inv.setIdentity();
+    for(int i = 0;i<NU;i++)
+    {
+        T_u_inv(i,i) = 1.0/T_u(i,i);
+    }
+
+    T_s.setIdentity();
+    T_s_inv.setIdentity();
 }
 
 }

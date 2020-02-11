@@ -270,7 +270,7 @@ std::array<OptVariables,N+1> HpipmInterface::Solve(int *status)
 
     d_ocp_qp_ipm_arg_set_default(mode, &arg);
 
-    d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
+    // d_ocp_qp_ipm_arg_set_mu0(&mu0, &arg);
     d_ocp_qp_ipm_arg_set_iter_max(&iter_max, &arg);
 //    d_ocp_qp_ipm_arg_set_tol_stat(&tol_stat, &arg);
 //    d_ocp_qp_ipm_arg_set_tol_eq(&tol_eq, &arg);
