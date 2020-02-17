@@ -61,7 +61,8 @@ int main() {
     std::list<MPCReturn> log;
     MPC mpc(jsonConfig["n_sqp"],jsonConfig["n_reset"],jsonConfig["sqp_mixing"],jsonConfig["Ts"],json_paths);
     mpc.setTrack(track_xy.X,track_xy.Y);
-    State x0 = {track_xy.X(0),track_xy.Y(0),-1*M_PI/4.0,0.05,0,0,0,1.0,0,1.0};
+    const double phi_0 = std::atan2(track_xy.Y(1) - track_xy.Y(0),track_xy.X(1) - track_xy.X(0));
+    State x0 = {track_xy.X(0),track_xy.Y(0),phi_0,jsonConfig["v0"],0,0,0,0.5,0,jsonConfig["v0"]};
     for(int i=0;i<jsonConfig["n_sim"];i++)
     {
         MPCReturn mpc_sol = mpc.runMPC(x0);

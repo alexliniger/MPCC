@@ -147,7 +147,7 @@ CostMatrix Cost::getContouringCost(const ArcLengthSpline &track, const State &x,
     // contouring cost matrix
     Eigen::Vector2d ContouringCost;
     ContouringCost.setZero(2);
-    ContouringCost(0) = k <= N ? cost_param_.q_c : cost_param_.q_c_N_mult * cost_param_.q_c;
+    ContouringCost(0) = k < N ? cost_param_.q_c : cost_param_.q_c_N_mult * cost_param_.q_c;
     ContouringCost(1) = cost_param_.q_l;
     // contouring and lag error part
     Q_MPC Q_contouring_cost = Q_MPC::Zero();
@@ -164,7 +164,7 @@ CostMatrix Cost::getContouringCost(const ArcLengthSpline &track, const State &x,
     Q_contouring_cost = ContouringCost(0)*d_contouring_error.transpose()*d_contouring_error +
                         ContouringCost(1)*d_lag_error.transpose()*d_lag_error;
     // regularization cost on yaw rate
-    Q_contouring_cost(si_index.r, si_index.r) = k <= N ? cost_param_.q_r : cost_param_.q_r_N_mult * cost_param_.q_r;
+    Q_contouring_cost(si_index.r, si_index.r) = k < N ? cost_param_.q_r : cost_param_.q_r_N_mult * cost_param_.q_r;
     Q_contouring_cost = 2.0*Q_contouring_cost;
 
     q_contouring_cost = ContouringCost(0)*2.0*contouring_error_zero*d_contouring_error.transpose() +
