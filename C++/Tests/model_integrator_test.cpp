@@ -17,7 +17,8 @@
 #include "model_integrator_test.h"
 namespace mpcc{
 int testIntegrator(const PathToJson &path){
-    const Integrator integrator = Integrator(path);
+    double Ts = 0.02;
+    const Integrator integrator = Integrator(Ts,path);
 
     // test integrator by comparing Euler forward to RK4
     // 3 differnet test points, hand picked, going straight and random
@@ -29,7 +30,7 @@ int testIntegrator(const PathToJson &path){
     State xk1 = {0,0,0,2,0.1,-0.3,0.1,0.2,-0.1,2};
     Input uk1 = {0.2,-0.1,0};
 
-    error1 = stateToVector(integrator.EF(xk1,uk1,TS)) - stateToVector(integrator.RK4(xk1,uk1,TS));
+    error1 = stateToVector(integrator.EF(xk1,uk1,Ts)) - stateToVector(integrator.RK4(xk1,uk1,Ts));
     std::cout << "hand picked point RK4 - EF error = " << error1.norm() << std::endl;
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // x and u corresponding to going straight with 1m/s
@@ -37,7 +38,7 @@ int testIntegrator(const PathToJson &path){
     State xk2 = {0,0,0,1,0,0,0,0,0,0};
     Input uk2 ={0,0,0};
 
-    error2 = stateToVector(integrator.EF(xk2,uk2,TS)) - stateToVector(integrator.RK4(xk2,uk2,TS));
+    error2 = stateToVector(integrator.EF(xk2,uk2,Ts)) - stateToVector(integrator.RK4(xk2,uk2,Ts));
     std::cout << "straight RK4 - EF error = " << error2.norm() << std::endl;
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // random x and u
@@ -47,7 +48,7 @@ int testIntegrator(const PathToJson &path){
     State xk3 = vectorToState(xkr);
     Input uk3 = vectorToInput(ukr);
 
-    error3 = stateToVector(integrator.EF(xk3,uk3,TS)) - stateToVector(integrator.RK4(xk3,uk3,TS));
+    error3 = stateToVector(integrator.EF(xk3,uk3,Ts)) - stateToVector(integrator.RK4(xk3,uk3,Ts));
     std::cout << "random RK4 - EF error = " <<  error3.norm() << std::endl;
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // test how good fit is
@@ -63,8 +64,9 @@ int testIntegrator(const PathToJson &path){
 int testLinModel(const PathToJson &path){
     // test Liniear model by comparing it to RK4
     // 3 differnet test cases, hand picked, going straight and test how good linear model generalizes
-    const Integrator integrator = Integrator(path);
-    const Model model = Model(path);
+    double Ts = 0.02;
+    const Integrator integrator = Integrator(0.02,path);
+    const Model model = Model(0.02,path);
     
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Hand picked x and u
@@ -76,7 +78,7 @@ int testLinModel(const PathToJson &path){
 
     const LinModelMatrix lin_model_d1 = model.getLinModel(xk1,uk1);
 
-    error1 = (lin_model_d1.A*xk1_vec + lin_model_d1.B*uk1_vec + lin_model_d1.g)  - stateToVector(integrator.RK4(xk1,uk1,TS));
+    error1 = (lin_model_d1.A*xk1_vec + lin_model_d1.B*uk1_vec + lin_model_d1.g)  - stateToVector(integrator.RK4(xk1,uk1,Ts));
     std::cout << "hand picked point RK4 - lin error = " << error1.norm() << std::endl;
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // x and u corresponding to going straight with 1m/s
@@ -88,7 +90,7 @@ int testLinModel(const PathToJson &path){
 
     const LinModelMatrix lin_model_d2 = model.getLinModel(xk2,uk2);
 
-    error2 = (lin_model_d2.A*xk2_vec + lin_model_d2.B*uk2_vec + lin_model_d2.g)  - stateToVector(integrator.RK4(xk2,uk2,TS));
+    error2 = (lin_model_d2.A*xk2_vec + lin_model_d2.B*uk2_vec + lin_model_d2.g)  - stateToVector(integrator.RK4(xk2,uk2,Ts));
     std::cout << "straight RK4 - lin error = " << error2.norm() << std::endl;
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     // generalization test
@@ -109,7 +111,7 @@ int testLinModel(const PathToJson &path){
     //still linearize around xk1 and uk1
     StateVector xk3_vec = stateToVector(xk3);
     InputVector uk3_vec = inputToVector(uk3);
-    error3 = (lin_model_d1.A*xk3_vec + lin_model_d1.B*uk3_vec + lin_model_d1.g)  - stateToVector(integrator.RK4(xk3,uk3,TS));
+    error3 = (lin_model_d1.A*xk3_vec + lin_model_d1.B*uk3_vec + lin_model_d1.g)  - stateToVector(integrator.RK4(xk3,uk3,Ts));
 //    std::cout << error3 << std::endl;
     std::cout << "generalization test RK4 - lin error = " << error3.norm() << std::endl;
     if(error1.norm()/10.0 <= 0.03 && error2.norm()/10.0 <= 0.03){

@@ -17,8 +17,8 @@
 #include "plotting.h"
 namespace mpcc{
 
-Plotting::Plotting(PathToJson path)
-:model_(Model(path)),
+Plotting::Plotting(double Ts,PathToJson path)
+:model_(Model(Ts,path)),
 param_(Param(path.param_path))
 {
 }

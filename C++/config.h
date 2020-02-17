@@ -36,7 +36,6 @@ namespace mpcc{
 #define NS 3
 
 static constexpr int N = 60;
-static constexpr double TS = 0.02;
 static constexpr double INF = 1E5;
 static constexpr int N_SPLINE = 5000;
 

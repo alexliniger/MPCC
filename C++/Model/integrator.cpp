@@ -21,8 +21,8 @@ Integrator::Integrator()
     std::cout << "default constructor, not everything is initialized properly" << std::endl;
 }
 
-Integrator::Integrator(const PathToJson &path)
-:model_(path)
+Integrator::Integrator(double Ts,const PathToJson &path)
+:model_(Ts,path)
 {
 }
 

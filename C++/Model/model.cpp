@@ -17,12 +17,13 @@
 #include "model.h"
 namespace mpcc{
 Model::Model()
+:Ts_(1.0)
 {
     std::cout << "default constructor, not everything is initialized properly" << std::endl;
 }
 
-Model::Model(const PathToJson &path)
-:param_(Param(path.param_path))
+Model::Model(double Ts,const PathToJson &path)
+:Ts_(Ts),param_(Param(path.param_path))
 {
 }
 
@@ -150,12 +151,13 @@ StateVector Model::getF(const State &x,const Input &u) const
 
     const TireForces tire_forces_front = getForceFront(x);
     const TireForces tire_forces_rear  = getForceRear(x);
+    const double friction_force = getForceFriction(x);
 
     StateVector f;
     f(0) = vx*std::cos(phi) - vy*std::sin(phi);
     f(1) = vy*std::cos(phi) + vx*std::sin(phi);
     f(2) = r;
-    f(3) = 1.0/param_.m*(tire_forces_rear.F_x - tire_forces_front.F_y*std::sin(delta) + param_.m*vy*r);
+    f(3) = 1.0/param_.m*(tire_forces_rear.F_x + friction_force - tire_forces_front.F_y*std::sin(delta) + param_.m*vy*r);
     f(4) = 1.0/param_.m*(tire_forces_rear.F_y + tire_forces_front.F_y*std::cos(delta) - param_.m*vx*r);
     f(5) = 1.0/param_.Iz*(tire_forces_front.F_y*param_.lf*std::cos(delta) - tire_forces_rear.F_y*param_.lr);
     f(6) = vs;
@@ -189,6 +191,7 @@ LinModelMatrix Model::getModelJacobian(const State &x, const Input &u) const
 
     const TireForcesDerivatives dF_front = getForceFrontDerivatives(x);
     const TireForcesDerivatives dF_rear  = getForceRearDerivatives(x);
+    const FrictionForceDerivatives dF_fric = getForceFrictionDerivatives(x);
 
     // Derivatives of function
     // f1 = v_x*std::cos(phi) - v_y*std::sin(phi)
@@ -204,8 +207,8 @@ LinModelMatrix Model::getModelJacobian(const State &x, const Input &u) const
     // f3 = r;
     const double df3_dr = 1.0;
 
-    // f4 = 1/param_.m*(F_rx - F_fy*std::sin(delta) + param_.m*v_y*r);
-    const double df4_dvx     = 1.0/param_.m*(dF_rear.dF_x_vx - dF_front.dF_y_vx*std::sin(delta));
+    // f4 = 1/param_.m*(F_rx + F_fric - F_fy*std::sin(delta) + param_.m*v_y*r);
+    const double df4_dvx     = 1.0/param_.m*(dF_rear.dF_x_vx + dF_fric.dF_f_vx - dF_front.dF_y_vx*std::sin(delta));
     const double df4_dvy     = 1.0/param_.m*(                - dF_front.dF_y_vy*std::sin(delta)    + param_.m*r);
     const double df4_dr      = 1.0/param_.m*(                - dF_front.dF_y_r*std::sin(delta)     + param_.m*vy);
     const double df4_dD      = 1.0/param_.m* dF_rear.dF_x_D;
@@ -283,7 +286,7 @@ LinModelMatrix Model::discretizeModel(const LinModelMatrix &lin_model_c) const
     temp.block<NX,NX>(0,0) = lin_model_c.A;
     temp.block<NX,NU>(0,NX) = lin_model_c.B;
     temp.block<NX,1>(0,NX+NU) = lin_model_c.g;
-    temp = temp*TS;
+    temp = temp*Ts_;
     // take the matrix exponential of temp
     const Eigen::Matrix<double,NX+NU+1,NX+NU+1> temp_res = temp.exp();
     // extract dynamics out of big matrix

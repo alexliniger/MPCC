@@ -4,6 +4,7 @@
   "n_reset": 5,
   "sqp_mixing" : 0.8,
   "n_sim": 600,
+  "Ts": 0.02,
   
   "model_path": "Params/model.json",
   "cost_path": "Params/cost.json",

@@ -21,8 +21,8 @@ Constraints::Constraints()
     std::cout << "default constructor, not everything is initialized properly" << std::endl;
 }
 
-Constraints::Constraints(const PathToJson &path) 
-:model_(path),
+Constraints::Constraints(double Ts,const PathToJson &path) 
+:model_(Ts,path),
 param_(Param(path.param_path))
 {
 }

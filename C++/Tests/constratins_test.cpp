@@ -69,9 +69,9 @@ void genRoundTrack(ArcLengthSpline &track){
 }
 
 int testAlphaConstraint(const PathToJson &path){
-    Constraints constraints = Constraints(path);
+    Constraints constraints = Constraints(0.02,path);
     ArcLengthSpline track = ArcLengthSpline(path);
-    Model model = Model(path);
+    Model model = Model(0.02,path);
     Param param = Param(path.param_path);
     // track.setParam(param);
     
@@ -130,9 +130,9 @@ int testAlphaConstraint(const PathToJson &path){
 
 
 int testTireForceConstraint(const PathToJson &path) {
-    Constraints constraints = Constraints(path);
+    Constraints constraints = Constraints(0.02,path);
     ArcLengthSpline track = ArcLengthSpline(path);
-    Model model = Model(path);
+    Model model = Model(0.02,path);
     Param param = Param(path.param_path);
 
 
@@ -174,7 +174,7 @@ int testTireForceConstraint(const PathToJson &path) {
 
 
 int testTrackConstraint(const PathToJson &path) {
-    Constraints constraints = Constraints(path);
+    Constraints constraints = Constraints(0.02,path);
     ArcLengthSpline track = ArcLengthSpline(path);
 
     genRoundTrack(track);

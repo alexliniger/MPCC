@@ -73,14 +73,14 @@ ErrorInfo Cost::getErrorInfo(const ArcLengthSpline &track,const State &x) const
     contouring_error(1) =  std::cos(track_point.theta_ref)*(track_point.x_ref - X) +
                            std::sin(track_point.theta_ref)*(track_point.y_ref - Y);
     // partial derivatives of the lag and contouring error with respect to s
-    const double dContouringError =    track_point.dtheta_ref*std::cos(track_point.theta_ref)*(X - track_point.x_ref)
-                        + track_point.dtheta_ref*std::sin(track_point.theta_ref)*(Y - track_point.y_ref)
-                        - track_point.dx_ref*std::sin(track_point.theta_ref)
-                        + track_point.dy_ref*std::cos(track_point.theta_ref);
-    const double dLagError =           track_point.dtheta_ref*std::sin(track_point.theta_ref)*(X - track_point.x_ref)
-                        - track_point.dtheta_ref*std::cos(track_point.theta_ref)*(Y - track_point.y_ref)
-                        + track_point.dx_ref*std::cos(track_point.theta_ref)
-                        + track_point.dy_ref*std::sin(track_point.theta_ref);
+    const double dContouringError = - track_point.dtheta_ref*std::cos(track_point.theta_ref)*(track_point.x_ref - X)
+                                    - track_point.dtheta_ref*std::sin(track_point.theta_ref)*(track_point.y_ref - Y)
+                                    - track_point.dx_ref*std::sin(track_point.theta_ref)
+                                    + track_point.dy_ref*std::cos(track_point.theta_ref);
+    const double dLagError =        - track_point.dtheta_ref*std::sin(track_point.theta_ref)*(track_point.x_ref - X)
+                                    + track_point.dtheta_ref*std::cos(track_point.theta_ref)*(track_point.y_ref - Y)
+                                    + track_point.dx_ref*std::cos(track_point.theta_ref)
+                                    + track_point.dy_ref*std::sin(track_point.theta_ref);
 
     Eigen::Matrix<double,2,NX> d_contouring_error = Eigen::Matrix<double,2,NX>::Zero();
     // compute all remaining partial derivatives and store the in dError
@@ -145,33 +145,34 @@ CostMatrix Cost::getContouringCost(const ArcLengthSpline &track, const State &x,
     // compute error and jacobean of error
     const ErrorInfo error_info = getErrorInfo(track,x);
     // contouring cost matrix
-    Eigen::Matrix2d ContouringCost;
-    ContouringCost.setZero(2,2);
-    if(k < N)
-        ContouringCost(0,0) = cost_param_.q_c;
-    else
-        ContouringCost(0,0) = cost_param_.q_c_N_mult*cost_param_.q_c;
-    ContouringCost(1,1) = cost_param_.q_l;
+    Eigen::Vector2d ContouringCost;
+    ContouringCost.setZero(2);
+    ContouringCost(0) = k <= N ? cost_param_.q_c : cost_param_.q_c_N_mult * cost_param_.q_c;
+    ContouringCost(1) = cost_param_.q_l;
     // contouring and lag error part
     Q_MPC Q_contouring_cost = Q_MPC::Zero();
     q_MPC q_contouring_cost = q_MPC::Zero();
-    Q_contouring_cost = error_info.d_error.transpose()*ContouringCost*error_info.d_error;
-    // regularization cost on yaw rate
-    if(k<N)
-        Q_contouring_cost(si_index.r,si_index.r) = cost_param_.q_r;
-    else
-        Q_contouring_cost(si_index.r,si_index.r) = cost_param_.q_r_N_mult*cost_param_.q_r;
 
-    // solver interface expects 0.5 x^T Q x + q^T x
-//    Q_contouring_cost = 0.5*(Q_contouring_cost.transpose()+Q_contouring_cost);
+    Eigen::Matrix<double,1,NX> d_contouring_error = Eigen::Matrix<double,1,NX>::Zero();
+    d_contouring_error = error_info.d_error.row(0);
+    const double contouring_error_zero = error_info.error(0) - d_contouring_error*stateToVector(x);
+
+    Eigen::Matrix<double,1,NX> d_lag_error = Eigen::Matrix<double,1,NX>::Zero();
+    d_lag_error = error_info.d_error.row(1);
+    const double lag_error_zero = error_info.error(1) - d_lag_error*stateToVector(x);
+
+    Q_contouring_cost = ContouringCost(0)*d_contouring_error.transpose()*d_contouring_error +
+                        ContouringCost(1)*d_lag_error.transpose()*d_lag_error;
+    // regularization cost on yaw rate
+    Q_contouring_cost(si_index.r, si_index.r) = k <= N ? cost_param_.q_r : cost_param_.q_r_N_mult * cost_param_.q_r;
     Q_contouring_cost = 2.0*Q_contouring_cost;
 
-    // contouring and lag error part
-    q_contouring_cost = 2.0*error_info.error*ContouringCost*error_info.d_error -
-                        2.0*x_vec.adjoint()*error_info.d_error.adjoint()*ContouringCost*error_info.d_error;
+    q_contouring_cost = ContouringCost(0)*2.0*contouring_error_zero*d_contouring_error.transpose() +
+                        ContouringCost(1)*2.0*lag_error_zero*d_lag_error.transpose();
     // progress maximization part
     q_contouring_cost(si_index.vs) = -cost_param_.q_vs;
 
+    // solver interface expects 0.5 x^T Q x + q^T x
     return {Q_contouring_cost,R_MPC::Zero(),S_MPC::Zero(),q_contouring_cost,r_MPC::Zero(),Z_MPC::Zero(),z_MPC::Zero()};
 }
 

@@ -34,7 +34,7 @@ public:
     void plotRun(const std::list<MPCReturn> &log, const TrackPos &track_xy) const;
     void plotSim(const std::list<MPCReturn> &log, const TrackPos &track_xy) const;
 
-    Plotting(PathToJson path);
+    Plotting(double Ts, PathToJson path);
 
 private:
     void plotBox(const State &x0) const;

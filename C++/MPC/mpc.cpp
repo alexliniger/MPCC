@@ -18,20 +18,22 @@
 
 namespace mpcc{
 MPC::MPC()
+:Ts_(1.0)
 {
     std::cout << "default constructor, not everything is initialized properly" << std::endl;
 }
 
-MPC::MPC(int n_sqp, int n_reset,double sqp_mixing,const PathToJson &path)
-:valid_initial_guess_(false),
+MPC::MPC(int n_sqp, int n_reset,double sqp_mixing, double Ts,const PathToJson &path)
+:Ts_(Ts),
+valid_initial_guess_(false),
 solver_interface_(new HpipmInterface()),
 param_(Param(path.param_path)),
 normalization_param_(NormalizationParam(path.normalization_path)),
 bounds_(BoundsParam(path.bounds_path)),
-constraints_(Constraints(path)),
+constraints_(Constraints(Ts,path)),
 cost_(Cost(path)),
-integrator_(Integrator(path)),
-model_(Model(path)),
+integrator_(Integrator(Ts,path)),
+model_(Model(Ts,path)),
 track_(ArcLengthSpline(path))
 {
     n_sqp_ = n_sqp;
@@ -141,7 +143,7 @@ void MPC::updateInitialGuess(const State &x0)
     initial_guess_[N-1].xk = initial_guess_[N-2].xk;
     initial_guess_[N-1].uk.setZero();// = initial_guess_[N-2].uk;
 
-    initial_guess_[N].xk = integrator_.RK4(initial_guess_[N-1].xk,initial_guess_[N-1].uk,TS);
+    initial_guess_[N].xk = integrator_.RK4(initial_guess_[N-1].xk,initial_guess_[N-1].uk,Ts_);
     initial_guess_[N].uk.setZero();
 
     unwrapInitialGuess();
@@ -180,7 +182,7 @@ void MPC::generateNewInitialGuess(const State &x0)
         initial_guess_[i].xk.setZero();
         initial_guess_[i].uk.setZero();
 
-        initial_guess_[i].xk.s = initial_guess_[i-1].xk.s + TS*param_.initial_velocity;
+        initial_guess_[i].xk.s = initial_guess_[i-1].xk.s + Ts_*param_.initial_velocity;
         Eigen::Vector2d track_pos_i = track_.getPostion(initial_guess_[i].xk.s);
         Eigen::Vector2d track_dpos_i = track_.getDerivative(initial_guess_[i].xk.s);
         initial_guess_[i].xk.X = track_pos_i(0);

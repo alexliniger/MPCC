@@ -40,7 +40,7 @@ public:
     ConstrainsMatrix getConstraints(const ArcLengthSpline &track,const State &x,const Input &u) const;
 
     Constraints();
-    Constraints(const PathToJson &path);
+    Constraints(double Ts,const PathToJson &path);
 private:
     OneDConstraint getTrackConstraints(const ArcLengthSpline &track,const State &x) const;
 

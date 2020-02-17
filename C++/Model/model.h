@@ -79,12 +79,13 @@ public:
     LinModelMatrix getLinModel(const State &x, const Input &u) const;
 
     Model();
-    Model(const PathToJson &path);
+    Model(double Ts,const PathToJson &path);
 private:
     LinModelMatrix getModelJacobian(const State &x, const Input &u) const;
     LinModelMatrix discretizeModel(const LinModelMatrix &lin_model_c) const;
 
     Param param_;
+    const double Ts_;
 };
 }
 #endif //MPCC_MODEL_H

@@ -79,7 +79,7 @@ public:
     void setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y);
 
     MPC();
-    MPC(int n_sqp, int n_reset, double sqp_mixing,const PathToJson &path);
+    MPC(int n_sqp, int n_reset, double sqp_mixing, double Ts,const PathToJson &path);
 
 private:
     bool valid_initial_guess_;
@@ -112,6 +112,8 @@ private:
     int n_non_solves_;
     int n_no_solves_sqp_;
     int n_reset_;
+
+    const double Ts_;
 
     Model model_;
     Integrator integrator_;

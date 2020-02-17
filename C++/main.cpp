@@ -52,20 +52,20 @@ int main() {
 
     // std::cout << testCost(json_paths) << std::endl;
 
-    Integrator integrator = Integrator(json_paths);
-    Plotting plotter = Plotting(json_paths);
+    Integrator integrator = Integrator(jsonConfig["Ts"],json_paths);
+    Plotting plotter = Plotting(jsonConfig["Ts"],json_paths);
 
     Track track = Track(json_paths.track_path);
     TrackPos track_xy = track.getTrack();
 
     std::list<MPCReturn> log;
-    MPC mpc(jsonConfig["n_sqp"],jsonConfig["n_reset"],jsonConfig["sqp_mixing"],json_paths);
+    MPC mpc(jsonConfig["n_sqp"],jsonConfig["n_reset"],jsonConfig["sqp_mixing"],jsonConfig["Ts"],json_paths);
     mpc.setTrack(track_xy.X,track_xy.Y);
     State x0 = {track_xy.X(0),track_xy.Y(0),-1*M_PI/4.0,0.05,0,0,0,1.0,0,1.0};
     for(int i=0;i<jsonConfig["n_sim"];i++)
     {
         MPCReturn mpc_sol = mpc.runMPC(x0);
-        x0 = integrator.simTimeStep(x0,mpc_sol.u0,0.02);
+        x0 = integrator.simTimeStep(x0,mpc_sol.u0,jsonConfig["Ts"]);
         log.push_back(mpc_sol);
     }
     plotter.plotRun(log,track_xy);
