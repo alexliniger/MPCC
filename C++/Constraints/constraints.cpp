@@ -60,14 +60,15 @@ OneDConstraint Constraints::getTireConstraintRear(const State &x) const
     // (param_.E_long*Frx)^2 + Fry^2 <= (param_.E_eps*F_max)^2
     const StateVector x_vec = stateToVector(x);
     const TireForces f_rear = model_.getForceRear(x);
+    const NormalForces f_normal = model_.getForceNormal(x);
 
     // compute tire friction constraint jacobean
     const C_i_MPC C_tire_constraint = getTireConstraintRearJac(x);
 
     // compute zero order term and max force
 //    const double tireCon0 = std::sqrt(std::pow(param_.e_long*f_rear.F_x,2) + std::pow(f_rear.F_y,2)); //zero order term
-    const double tireCon0 = std::pow(param_.e_long*f_rear.F_x,2) + std::pow(f_rear.F_y,2); //zero order term
-    const double maxForce = std::pow(param_.e_eps*param_.Dr,2);//param_.e_eps*param_.Dr;// //max allowed force
+    const double tireCon0 = std::pow(param_.e_long*f_rear.F_x/f_normal.F_N_rear,2) + std::pow(f_rear.F_y/f_normal.F_N_rear,2); //zero order term
+    const double maxForce = std::pow(param_.e_eps*param_.Dr/f_normal.F_N_rear,2);//param_.e_eps*param_.Dr;// //max allowed force
 
     // set bounds given linearized constraint
     // 0 <= 'Jac TC' (x - x0) + TC(x0) <= F_max
