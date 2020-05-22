@@ -1,7 +1,7 @@
 # MPCC
 Simulation environments in C++ and Matlab of the Model Predictive Contouring Controller (MPCC) for Autonomous Racing developed by the Automatic Control Lab (IfA) at ETH Zurich
 
-## Fromulation
+## Formulation
 
 The MPCC is a model predictive path following controller which does follow a predefined reference path X^ref and Y^ref. This is achieved by augmenting the system with an integrator stated theta which approximates the progress along the reference path. The theta state is coupled to the real dynamics using the lag error e^l which is penalized in the cost. Additionally, the contouring error (lateral error to the reference path) is also penalized in the cost function. Finally, the progress along the reference path is maximized to achieve that the car does follow the path as fast as possible and the rate of the inputs is penalized. To guarantee that the car stays within the track, track constraints are imposed as well as bounds on all states, inputs and the rate of inputs. The resulting optimization problem is shown in the following equation:
 <img src="https://github.com/alexliniger/MPCC/blob/master/Images/NMPCC_problem.jpg" width="700" />
