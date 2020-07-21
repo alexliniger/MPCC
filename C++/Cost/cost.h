@@ -48,7 +48,7 @@ struct ErrorInfo{
 
 class Cost {
 public:
-    CostMatrix getCost(const ArcLengthSpline &track, const State &x,int k) const;
+    CostMatrix getCost(const ArcLengthSpline &track, const State &x, const Input &u,int k) const;
 
     Cost(const PathToJson &path);
     Cost();

@@ -254,11 +254,11 @@ std::array<OptVariables,N+1> HpipmInterface::Solve(int *status)
 //    enum hpipm_mode mode = SPEED_ABS;
     enum hpipm_mode mode = SPEED;
 //    enum hpipm_mode mode = BALANCE;
-//    enum hpipm_mode mode = ROBUST;
+   // enum hpipm_mode mode = ROBUST;
 
 //    int mode = 1;
     double mu0 = 1e2;
-    int iter_max = 30;
+    int iter_max = 20;
     double tol_stat = 1e-6;
     double tol_eq = 1e-6;
     double tol_ineq = 1e-6;

@@ -27,11 +27,11 @@ public:
     Bounds();
     Bounds(BoundsParam bounds_param);
 
-    Bounds_x getBoundsLX() const;
-    Bounds_x getBoundsUX() const;
+    Bounds_x getBoundsLX(const State &x) const;
+    Bounds_x getBoundsUX(const State &x) const;
 
-    Bounds_u getBoundsLU() const;
-    Bounds_u getBoundsUU() const;
+    Bounds_u getBoundsLU(const Input &u) const;
+    Bounds_u getBoundsUU(const Input &u) const;
 
     Bounds_s getBoundsLS() const;
     Bounds_s getBoundsUS() const;

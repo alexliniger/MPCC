@@ -277,58 +277,78 @@ LinModelMatrix Model::getModelJacobian(const State &x, const Input &u) const
     return {A_c,B_c,g_c};
 }
 
-LinModelMatrix Model::discretizeModel(const LinModelMatrix &lin_model_c) const
+// Mixed RK4 - EXPM method
+LinModelMatrix Model::discretizeModel(const LinModelMatrix &lin_model_c, const State &x, const Input &u,const State &x_next) const
 {
     // disctetize the continuous time linear model \dot x = A x + B u + g using ZHO
-    Eigen::Matrix<double,NX+NU+1,NX+NU+1> temp = Eigen::Matrix<double,NX+NU+1,NX+NU+1>::Zero();
+    Eigen::Matrix<double,NX+NU,NX+NU> temp = Eigen::Matrix<double,NX+NU,NX+NU>::Zero();
     // building matrix necessary for expm
     // temp = Ts*[A,B,g;zeros]
     temp.block<NX,NX>(0,0) = lin_model_c.A;
     temp.block<NX,NU>(0,NX) = lin_model_c.B;
-    temp.block<NX,1>(0,NX+NU) = lin_model_c.g;
     temp = temp*Ts_;
+
     // take the matrix exponential of temp
-    const Eigen::Matrix<double,NX+NU+1,NX+NU+1> temp_res = temp.exp();
+    const Eigen::Matrix<double,NX+NU,NX+NU> temp_res = temp.exp();
     // extract dynamics out of big matrix
-    // x_{k+1} = Ad x_k + Bd u_k + gd
-    //temp_res = [Ad,Bd,gd;zeros]
+    // x_{k+1} = Ad x_k + Bd u_k
+    //temp_res = [Ad,Bd;zeros]
     const A_MPC A_d = temp_res.block<NX,NX>(0,0);
     const B_MPC B_d = temp_res.block<NX,NU>(0,NX);
-    const g_MPC g_d = temp_res.block<NX,1>(0,NX+NU);
 
+    // TODO: use correct RK4 instead of inline RK4
+    const StateVector x_vec = stateToVector(x);
+
+    const StateVector k1 = getF(vectorToState(x_vec),u);
+    const StateVector k2 = getF(vectorToState(x_vec+Ts_/2.*k1),u);
+    const StateVector k3 = getF(vectorToState(x_vec+Ts_/2.*k2),u);
+    const StateVector k4 = getF(vectorToState(x_vec+Ts_*k3),u);
+    // combining to give output
+    const StateVector x_RK = x_vec + Ts_*(k1/6.+k2/3.+k3/3.+k4/6.);
+
+    const g_MPC g_d =  -stateToVector(x_next) + x_RK;
+
+    // return {A_d,B_d,g_d};
     return {A_d,B_d,g_d};
 }
 
-//LinModelMatrix Model::discretizeModel(const LinModelMatrix &lin_model_c) const
-//{
-//    // disctetize the continuous time linear model \dot x = A x + B u + g using ZHO
-//    Eigen::Matrix<double,NX+NU+1,NX+NU+1> temp = Eigen::Matrix<double,NX+NU+1,NX+NU+1>::Zero();
-//    // building matrix necessary for expm
-//    // temp = Ts*[A,B,g;zeros]
-//    temp.block<NX,NX>(0,0) = lin_model_c.A;
-//    temp.block<NX,NU>(0,NX) = lin_model_c.B;
-//    temp.block<NX,1>(0,NX+NU) = lin_model_c.g;
-//    temp = temp*TS;
-//    Eigen::Matrix<double,NX+NU+1,NX+NU+1> eye;
-//    eye.setIdentity();
-//    const Eigen::Matrix<double,NX+NU+1,NX+NU+1> temp_mult = temp * temp;
-//
-//    const Eigen::Matrix<double,NX+NU+1,NX+NU+1> temp_res = eye + temp + 1./2.0 * temp_mult + 1./6.0 * temp_mult * temp;
-//
-//    // x_{k+1} = Ad x_k + Bd u_k + gd
-//    const A_MPC A_d = temp_res.block<NX,NX>(0,0);
-//    const B_MPC B_d = temp_res.block<NX,NU>(0,NX);
-//    const g_MPC g_d = temp_res.block<NX,1>(0,NX+NU);
-//
-//    return {A_d,B_d,g_d};
-//
-//}
+// // EF Method (not suited for used input lifting technique)
+// LinModelMatrix Model::discretizeModel(const LinModelMatrix &lin_model_c, const State &x, const Input &u,const State &x_next) const
+// {
+//     // disctetize the continuous time linear model \dot x = A x + B u + g using ZHO
+//     Eigen::Matrix<double,NX+NU,NX+NU> temp = Eigen::Matrix<double,NX+NU,NX+NU>::Zero();
+//     // building matrix necessary for expm
+//     // temp = Ts*[A,B,g;zeros]
+//     temp.block<NX,NX>(0,0) = lin_model_c.A;
+//     temp.block<NX,NU>(0,NX) = lin_model_c.B;
+//     temp = temp*Ts_;
 
-LinModelMatrix Model::getLinModel(const State &x, const Input &u) const
+//     Eigen::Matrix<double,NX+NU,NX+NU> eye;
+//     eye.setIdentity();
+//     // take the matrix exponential of temp
+//     const Eigen::Matrix<double,NX+NU,NX+NU> temp_res = eye + temp;
+//     // extract dynamics out of big matrix
+//     // x_{k+1} = Ad x_k + Bd u_k
+//     //temp_res = [Ad,Bd;zeros]
+//     const A_MPC A_d = temp_res.block<NX,NX>(0,0);
+//     const B_MPC B_d = temp_res.block<NX,NU>(0,NX);
+
+//     const StateVector x_vec = stateToVector(x);
+
+//     const StateVector f = getF(vectorToState(x_vec),u);
+//     // combining to give output
+//     const StateVector x_EF = x_vec + Ts_*f;
+
+//     const g_MPC g_d =  -stateToVector(x_next) + x_EF;
+//     // return {A_d,B_d,g_d};
+//     return {A_d,B_d,g_d};
+// }
+
+LinModelMatrix Model::getLinModel(const State &x, const Input &u, const State &x_next) const
 {
     // compute linearized and discretized model
     const LinModelMatrix lin_model_c = getModelJacobian(x,u);
     // discretize the system
-    return discretizeModel(lin_model_c);
+    return discretizeModel(lin_model_c,x,u,x_next);
 }
 }

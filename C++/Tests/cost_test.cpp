@@ -41,20 +41,20 @@ int testCost(const PathToJson &path){
     // contouring cost is approximatly the zero order term of the cost given the error is zero
     // 0.5 xQx + 0.5 uRu + qx + ru ~ 0.5 xQx
     // s = 0    -> right of circle
-    CostMatrix cost_mat0 = cost.getCost(track,vectorToState(xk0_vec),1);
+    CostMatrix cost_mat0 = cost.getCost(track,vectorToState(xk0_vec),vectorToInput(uk0_vec),1);
 
     if(std::fabs((0.5*xk0_vec.transpose()*cost_mat0.Q*xk0_vec + 0.5*uk0_vec.transpose()*cost_mat0.R*uk0_vec +  cost_mat0.q.transpose()*xk0_vec +  cost_mat0.r.transpose()*uk0_vec  + 0.5*xk0_vec.transpose()*cost_mat0.Q*xk0_vec).value()) >= 0.1){
         return 2;
     }
     // s = R*pi/2 -> top of circle
-    CostMatrix cost_mat1 = cost.getCost(track,vectorToState(xk1_vec),1);
+    CostMatrix cost_mat1 = cost.getCost(track,vectorToState(xk1_vec),vectorToInput(uk0_vec),1);
 
 
     if(std::fabs((0.5*xk1_vec.transpose()*cost_mat1.Q*xk1_vec + 0.5*uk1_vec.transpose()*cost_mat1.R*uk1_vec +  cost_mat1.q.transpose()*xk1_vec +  cost_mat1.r.transpose()*uk1_vec  + 0.5*xk1_vec.transpose()*cost_mat1.Q*xk1_vec).value()) >= 0.1) {
         return 3;
     }
     // s = R*pi -> left of circle
-    CostMatrix cost_mat2 = cost.getCost(track,vectorToState(xk2_vec),1);
+    CostMatrix cost_mat2 = cost.getCost(track,vectorToState(xk2_vec),vectorToInput(uk0_vec),1);
 
 //    std::cout << std::fabs((0.5*xk2_vec.transpose()*Q*xk2_vec + 0.5*uk2_vec.transpose()*R*uk2_vec +  q.transpose()*xk2_vec +  r.transpose()*uk2_vec  + 0.5*xk2_vec.transpose()*Q*xk2_vec).value()) << std::endl;
     if(std::fabs((0.5*xk2_vec.transpose()*cost_mat2.Q*xk2_vec + 0.5*uk2_vec.transpose()*cost_mat2.R*uk2_vec +  cost_mat2.q.transpose()*xk2_vec +  cost_mat2.r.transpose()*uk2_vec  + 0.5*xk2_vec.transpose()*cost_mat2.Q*xk2_vec).value()) >= 0.1){
