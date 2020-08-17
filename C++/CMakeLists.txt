@@ -36,8 +36,8 @@ add_executable(MPCC
         Plotting/plotting.cpp
         Plotting/plotting.h)
 
-find_package(PythonLibs 2.7)
-target_include_directories(MPCC PRIVATE ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(MPCC ${PYTHON_LIBRARIES})
+find_package(Python COMPONENTS Development)
+target_include_directories(MPCC PRIVATE ${Python_INCLUDE_DIRS})
+target_link_libraries(MPCC ${Python_LIBRARIES})
 
 target_link_libraries(MPCC ${CMAKE_SOURCE_DIR}/External/hpipm/lib/lib/libhpipm.a ${CMAKE_SOURCE_DIR}/External/blasfeo/lib/lib/libblasfeo.a m)
