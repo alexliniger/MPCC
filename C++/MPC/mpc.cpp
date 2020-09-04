@@ -155,7 +155,7 @@ void MPC::unwrapInitialGuess()
     double L = track_.getLength();
     for(int i=1;i<=N;i++)
     {
-        if((initial_guess_[i].xk.phi - initial_guess_[i-1].xk.phi) < M_PI)
+        if((initial_guess_[i].xk.phi - initial_guess_[i-1].xk.phi) < -M_PI)
         {
             initial_guess_[i].xk.phi += 2.*M_PI;
         }
