@@ -24,8 +24,8 @@
 
   "g"   : 9.81,
 
-  "R_in" : 1.0,
-  "R_out" : 1.0,
+  "R_in" : 2.0,
+  "R_out" : 2.0,
 
   "max_dist_proj": 3.0,
 
@@ -34,7 +34,7 @@
 
   "maxAlpha" : 0.15,
 
-  "initial_velocity" : 20.0,
+  "initial_velocity" : 15.0,
   "s_trust_region" : 30.0,
 
   "vx_zero": 0.3
