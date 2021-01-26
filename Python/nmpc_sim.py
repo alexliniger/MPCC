@@ -63,7 +63,7 @@ def main():
     path_ref = CubicSplinePath(track['X'], track['Y'], close=True)
 
     dT = 0.02
-    T  = 40
+    T  = 30
     simulation_time = 17
 
     bounds = load_param('bounds')
