@@ -17,9 +17,11 @@ class ExBicycleModel(SimModel):
     def SYMPY_rh_eq(self):
         import sympy as sy
         # Generalized coordinates and velocities
+        ## Define q as [X,Y, phi, vx, vy, r, d, sigma, v_theta]
         q  = sy.symbols('q:{0}'.format(self.NX))
         dq = [q[3], q[4], q[5]]
         u  = [q[7], q[8], q[9]]
+        ## Define du as [dd, dsigma, dv_theta]
         du  = sy.symbols('u:{0}'.format(self.NU))
 
         alpha_f =  sy.atan2(dq[1] + self.param['lf'] * dq[2], dq[0]) - u[1]
@@ -68,22 +70,31 @@ def main():
 
     bounds = load_param('bounds')
     cost   = load_param('cost')
+
     model_params = load_param('model')
     normalization = load_param('normalization')
 
     # Initialize model 
+    ## Define the environment (vehicle model)
     v = VehicleSimModel(scale=2, control_dt = dT*1000)
+    ## Define controller internal model
     dmodel = ExBicycleModel(param=model_params, NX=10, NU=3) 
 
+    ### Theta state 
     s0   = np.array([0.0, 1.0], dtype=np.float64)
     phi0 = np.arctan2(path_ref.dY(s0[0]), path_ref.dX(s0[0]))
 
+    ### Vehicle state [X, Y, phi]
     x0   = np.array([path_ref.X(s0[0]), path_ref.Y(s0[0]), phi0], 
                     dtype=np.float64)
+    ### Vehicle state [vx, vy, r]
     dq0  = np.array([s0[1], 0., 0.], 
                     dtype=np.float64)
+    ### Vehicle input [d, sigma, v_theta]
     u0   = np.array([0., 0., s0[1]], 
                     dtype=np.float64)
+
+    ## Set the inital value to the internal variable of the simulation environment
     v.x = x0
     v.dq= dq0 
 
@@ -92,6 +103,7 @@ def main():
         import sympy
         from sympy import cos, sin, atan2
 
+        # Define x as [X,Y, phi, vx, vy, r, d, sigma, v_theta]
         x = sympy.symbols('x:{0}'.format(10))
         a = sympy.Function('X')(x[6])
         b = sympy.Function('Y')(x[6])
@@ -101,6 +113,7 @@ def main():
 
         X, Y, dX, dY, ddX, ddY = sympy.symbols('X Y dX dY ddX ddY') 
 
+        # [e_c; e_l] = U@(x-x_ref)
         U = sympy.Matrix([[ sin(atan2(b.diff(x[6]),a.diff(x[6]))),-cos(atan2(b.diff(x[6]),a.diff(x[6]))),0,0,0,0,0, 0,0,0],
                           [-cos(atan2(b.diff(x[6]),a.diff(x[6]))),-sin(atan2(b.diff(x[6]),a.diff(x[6]))),0,0,0,0,0, 0,0,0]])
         dE = sympy.derive_by_array(U*(xg-xr),x).reshape(10,2).transpose().tomatrix()
@@ -176,6 +189,7 @@ def main():
 
     H, J, q, H_N, J_N, _, RH, RJ, r, G, h = gen_cost_function()
 
+    # Define NMPC Controller
     controller = NMPC(dT=dT, dmodel=dmodel.genDModel, time_horizon=T,
                   H=H, J=J, q=q, H_N=H_N, J_N=J_N,
                   RH= RH, RJ=RJ, r=r,
@@ -217,7 +231,7 @@ def main():
         if e**0.5 > 0.15:
             break
 
-        # Track Refs
+        # Init or update the initial guess of SQP
         if flag:
             u_bar[:,0:-2] = u_bar[:,1:-1]
             x_bar[:,0:-2] = x_bar[:,1:-1]
@@ -255,6 +269,7 @@ def main():
             for t in range(T):
                 x_bar[:,t+1] = dmodel.PredictForwardEuler(x_bar[:,t], u_bar[:,t], dT)
 
+        # SQP Iteration
         flag = False
         for _ in range(QP_it):
             # MPC iteration
@@ -263,12 +278,15 @@ def main():
                                 np.zeros((3, T+1)),
                                 x_bar[6],
                                 np.zeros((3, T+1))])
+
             x_new, u_new, loss = controller.iterate_NMPC(x_bar, u_bar, x_ref)
+
             if loss is not None:
                 x_bar  = updateW*x_bar + (1-updateW)*x_new
                 u_bar  = updateW*u_bar + (1-updateW)*u_new
                 flag = True
 
+        # Get vehicle command 'u'
         v.u = x_bar[7:,1]
 
         x = np.append(x, v.x[0])
@@ -277,6 +295,7 @@ def main():
         carX, carY = v.shape.T
         car.append((carX, carY))
         vlog.append(np.hstack((v.x,v.dq)))
+
         if render:
             plt.cla()
             plt.plot(track['X'],  track['Y'], "r--" )
@@ -290,8 +309,10 @@ def main():
             plt.title("speed[m/s]:{:.2f}, deg:{:.2f}".format(v.dq[0], v.x[2]))
             plt.pause(0.001)
 
+        # Step sim forward
         v.sim_step(v.u)
 
+    # Plot result after the simulation
     plt.figure(0)
     plt.cla()
     plt.plot(track['X'],track['Y'], "r--")

@@ -198,11 +198,13 @@ class NMPC():
         h = np.hstack(h_block)
 
         x_l = np.tile(self.x_l, T+1)
+        # Set trust region
         x_l[6::self.NX] = -0.2 + x_guess[6]
         u_l = np.tile(self.u_l, T)
         x_l = np.hstack((x_l, u_l))
 
         x_u = np.tile(self.x_u, T+1)
+        # Set trust region
         x_u[6::self.NX] = 0.2 + x_guess[6]
         u_u = np.tile(self.u_u, T)
         x_u = np.hstack((x_u, u_u))
