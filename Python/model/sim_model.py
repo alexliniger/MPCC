@@ -1,16 +1,17 @@
 import numpy as np
-from numba import jit, jitclass, int32, float32, double, cfunc
+from numba import jit, int32, float32, double, cfunc
+from numba.experimental import jitclass
 
 spec = [
     ('x', double[:]), ('dq', double[:]), ('u', double[:]),
     ('m', double), ('Iz', double),
-    ('lf', double), ('lr', double), 
+    ('lf', double), ('lr', double),
     ('Bf', double), ('Cf', double), ('Df', double),
     ('Br', double), ('Cr', double), ('Dr', double),
     ('Cr0', double), ('Cr2', double),
     ('Cm1', double), ('Cm2', double),
     ('iterNum', int32), ('sim_dt', double), ('control_dt', double),
-    ('car_shape', double[:,:]), 
+    ('car_shape', double[:,:]),
 ]
 
 @jitclass(spec)
@@ -47,7 +48,7 @@ class VehicleSimModel(object):
         self.Cm2 = Cm2
 
         car_l = (lf + lr)/2 * scale
-        car_w = car_l/2 
+        car_w = car_l/2
         self.car_shape = np.asfortranarray(np.array([ [ car_l, car_w, 1.],
                                     [ car_l,-car_w, 1.],
                                     [-car_l,-car_w, 1.],
@@ -60,7 +61,7 @@ class VehicleSimModel(object):
     @property
     def shape(self):
         shape = np.dot(self.car_shape,
-                       np.asfortranarray(np.array([ 
+                       np.asfortranarray(np.array([
                            [ np.cos(self.x[2]),  np.sin(self.x[2]), 0.],
                            [-np.sin(self.x[2]),  np.cos(self.x[2]), 0.],
                            [ self.x[0]        ,  self.x[1]        , 1.]], dtype=np.float64)))

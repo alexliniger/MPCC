@@ -28,7 +28,7 @@ class SimModel(object):
         q = sy.symbols('q:{0}'.format(self.NX))
         u = sy.symbols('u:{0}'.format(self.NU))
         return MAT.jacobian(q), MAT.jacobian(u)
-    
+
     def genDynamicEquation(self):
         q = sy.symbols("q:{0}".format(self.NX))
         u = sy.symbols("u:{0}".format(self.NU))
@@ -68,11 +68,11 @@ class NMPC():
                  H = None, J = None, q = None,
                  RH = None, RJ = None, r = None,
                  H_N = None, J_N = None, q_N = None,
-                 dmodel = None, 
+                 dmodel = None,
                  G = None, h = None,
                  normalization_x = None,
                  normalization_u = None,
-                 x_ubounds=[], x_lbounds=[], 
+                 x_ubounds=[], x_lbounds=[],
                  u_ubounds=[], u_lbounds=[]):
 
         assert H != None
@@ -135,7 +135,7 @@ class NMPC():
 
     def iterate_NMPC(self, x_guess, u_guess, x_ref, verbose=False, warmstart=False):
         T = self.time_horizon
-        X_DIM = self.NX*(T+1) 
+        X_DIM = self.NX*(T+1)
         U_DIM = self.NU*(T)
 
         P_Q_blocks = []
@@ -154,18 +154,18 @@ class NMPC():
                 P_R_blocks.append(self.R_H(x_guess[:,k], u_guess[:,k], x_ref[:,k]))
                 q_r_blocks.append(self.R_J(x_guess[:,k], u_guess[:,k], x_ref[:,k])+self.r)
 
-        P = block_diag(*P_Q_blocks,*P_R_blocks) 
+        P = block_diag(*P_Q_blocks,*P_R_blocks)
         q = np.hstack(q_q_blocks+q_r_blocks)
         P = 0.5*(P.T+P)
 
-        Ad, Bd, gd = zip(*[self.model(q[:3], q[3:], u, self.dT) 
+        Ad, Bd, gd = zip(*[self.model(q[:3], q[3:], u, self.dT)
                            for q, u in zip(x_guess.T, u_guess.T)])
 
         A = block_diag(*Ad)
         B = block_diag(*Bd)
         b = np.hstack((
                 x_guess[:,0],
-                - np.hstack(gd) 
+                - np.hstack(gd)
             ))
         A = np.block([
                 [np.eye(self.NX), np.zeros((self.NX, X_DIM + U_DIM - self.NX))],
@@ -182,7 +182,7 @@ class NMPC():
 
         ### Track Constratint
         G = [
-                self.G(x_g, x_r) 
+                self.G(x_g, x_r)
                 for x_g,x_r
                 in zip(x_guess.T, x_ref.T)
             ]
@@ -216,17 +216,17 @@ class NMPC():
                 ret = solve_qp(P, q, G, h, A, b, x_l, x_u, solver='osqp')
             else:
                 init_val = self.Norm_inv@np.hstack((x_guess.T.ravel(), u_guess.T.ravel()))
-                #print("Equation Const", np.any(A@init_val==b))
-                #print("InEquation Const", np.any(G@init_val<=h))
-                #print("Lower bound Const", np.any(init_val>=x_l))
-                #print("Upper bound Const", np.any(init_val<=x_u))
+                #print("Equation Const", np.all(A@init_val==b))
+                #print("InEquation Const", np.all(G@init_val<=h))
+                #print("Lower bound Const", np.all(init_val>=x_l))
+                #print("Upper bound Const", np.all(init_val<=x_u))
                 #print("")
 
-                ret = solve_qp(self.Norm@P@self.Norm, 
-                               q@self.Norm, 
-                               G@self.Norm, h, 
-                               self.Norm_inv[:X_DIM,:X_DIM]@A@self.Norm, self.Norm_inv[:X_DIM,:X_DIM]@b, 
-                               self.Norm_inv@x_l, self.Norm_inv@x_u, 
+                ret = solve_qp(self.Norm@P@self.Norm,
+                               q@self.Norm,
+                               G@self.Norm, h,
+                               self.Norm_inv[:X_DIM,:X_DIM]@A@self.Norm, self.Norm_inv[:X_DIM,:X_DIM]@b,
+                               self.Norm_inv@x_l, self.Norm_inv@x_u,
                                initvals=init_val, solver='osqp')
                 if ret[0] is not None:
                     ret = self.Norm@ret
@@ -234,9 +234,11 @@ class NMPC():
             print(e)
             return np.zeros_like(x_guess), np.zeros_like(u_guess), None
 
-        if ret.dtype != np.object:
-            ret_x = ret[:X_DIM].reshape((-1, self.NX)).T 
-            ret_u = ret[X_DIM:].reshape((-1, self.NU)).T 
+        #if ret.dtype != np.object:
+        if ret is not None:
+            ret_x = ret[:X_DIM].reshape((-1, self.NX)).T
+            ret_u = ret[X_DIM:].reshape((-1, self.NU)).T
             return ret_x, ret_u, 0.
         else:
             return x_guess, u_guess, None
+
