@@ -114,7 +114,7 @@ function Qtilde = generateQtilde(pathinfo,MPC_vars,ModelParams,Xk,i)
     end
         
     theta_virt=mod(Xk(end),pathinfo.ppx.breaks(end));
-    [grad_eC, grad_eL] = getErrorGradient(pathinfo, theta_virt, ModelParams,Xk(1), Xk(2));
+    [grad_eC, grad_eL] = getErrorGradient(pathinfo, theta_virt, ModelParams, Xk(ModelParams.stateindex_x), Xk(ModelParams.stateindex_y));
     errorgrad = [grad_eC; grad_eL]; 
     Qtilde = errorgrad'*Q*errorgrad; 
 end
