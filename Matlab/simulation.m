@@ -131,7 +131,7 @@ qpTime_log = zeros(1,simN);
 for i = 1:5
     % formulate MPCC problem and solve it
     Iter_damping = 0.5; % 0 no damping
-    [x_up, u_up, b, exitflag,info] = optimizer(TrackMPC,MPC_vars,ModelParams, n_cars, Y, x, u, x0, uprev);
+    [x_up, u_up, b, exitflag,info] = optimizer_mpcc(TrackMPC,MPC_vars,ModelParams, n_cars, Y, x, u, x0, uprev);
     x = Iter_damping*x + (1-Iter_damping)*x_up;
     u = Iter_damping*u + (1-Iter_damping)*u_up;
 
@@ -151,19 +151,19 @@ for i = 1: simN
     [x,u] = augState(x,u,x0,MPC_vars,ModelParams,tl);
     %  formulate MPCC problem and solve it
     if QP_iter == 0
-        [x, u, b, exitflag,info] = optimizer(TrackMPC,MPC_vars,ModelParams, n_cars, Y, x, u, x0, uprev);
+        [x, u, b, exitflag,info] = optimizer_mpcc(TrackMPC,MPC_vars,ModelParams, n_cars, Y, x, u, x0, uprev);
         qpTime_log(i) = info.QPtime;
     elseif QP_iter == 1
         % doing multiple "SQP" steps
         for k = 1:2
-            [x, u, b, exitflag,info] = optimizer(TrackMPC,MPC_vars,ModelParams, n_cars, Y, x, u, x0, uprev);
+            [x, u, b, exitflag,info] = optimizer_mpcc(TrackMPC,MPC_vars,ModelParams, n_cars, Y, x, u, x0, uprev);
             qpTime_log(i) = qpTime_log(i) + info.QPtime;
         end
     elseif QP_iter == 2
         % doing multiple damped "SQP" steps
         for k = 1:2
             Iter_damping = 0.75; % 0 no damping
-            [x_up, u_up, b, exitflag,info] = optimizer(TrackMPC,MPC_vars,ModelParams, n_cars, Y, x, u, x0, uprev);
+            [x_up, u_up, b, exitflag,info] = optimizer_mpcc(TrackMPC,MPC_vars,ModelParams, n_cars, Y, x, u, x0, uprev);
             x = Iter_damping*x + (1-Iter_damping)*x_up;
             u = Iter_damping*u + (1-Iter_damping)*u_up;
             qpTime_log(i) = qpTime_log(i) + info.QPtime;
