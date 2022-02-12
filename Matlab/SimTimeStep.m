@@ -44,12 +44,12 @@ function xdot=fx_bicycle(t,x,u,ModelParams)
     l_r = ModelParams.lr;
 
     
-    phi   =x(3);
-    v_x     =x(4);
-    v_y     =x(5);
-    omega   =x(6);
-    D     =u(1);
-    delta =u(2);
+    phi   = x(ModelParams.stateindex_phi);
+    v_x   = x(ModelParams.stateindex_vx);
+    v_y   = x(ModelParams.stateindex_vy);
+    omega = x(ModelParams.stateindex_omega);
+    D     = u(ModelParams.inputindex_D);
+    delta = u(ModelParams.inputindex_delta);
     
     
     alpha_f = -atan2(l_f*omega + v_y,abs(v_x))+delta;
