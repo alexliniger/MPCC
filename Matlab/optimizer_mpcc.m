@@ -13,7 +13,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [x, u, new_b, exitflag,info] = optimizer(TrackMPC,MPC_vars,ModelParams,n_cars, Y, x, u,  x0, u0)
+function [x, u, new_b, exitflag,info] = optimizer_mpcc(TrackMPC,MPC_vars,ModelParams,n_cars, Y, x, u,  x0, u0)
 
     % reshape X such that it can be used in DP
     X = reshape(x,(MPC_vars.N+1)*ModelParams.nx,1);
