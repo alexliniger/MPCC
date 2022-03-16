@@ -6,12 +6,12 @@ import pandas as pd
 
 from util.cubic_spline_path import CubicSplinePath
 from controller.mpc_controller import SimModel, NMPC
-from model.sim_model import VehicleSimModel 
+from model.sim_model import VehicleSimModel
 
 base_path = "../C++/Params/"
 def load_param(file_name):
-    with open(os.path.join(base_path, file_name + ".json")) as json_file: 
-        return json.load(json_file) 
+    with open(os.path.join(base_path, file_name + ".json")) as json_file:
+        return json.load(json_file)
 
 class ExBicycleModel(SimModel):
     def SYMPY_rh_eq(self):
@@ -54,7 +54,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--render", 
+        "--render",
         action="store_true",
         help="Render env states in a GUI window."
     )
@@ -74,29 +74,29 @@ def main():
     model_params = load_param('model')
     normalization = load_param('normalization')
 
-    # Initialize model 
+    # Initialize model
     ## Define the environment (vehicle model)
     v = VehicleSimModel(scale=2, control_dt = dT*1000)
     ## Define controller internal model
-    dmodel = ExBicycleModel(param=model_params, NX=10, NU=3) 
+    dmodel = ExBicycleModel(param=model_params, NX=10, NU=3)
 
-    ### Theta state 
+    ### Theta state
     s0   = np.array([0.0, 1.0], dtype=np.float64)
     phi0 = np.arctan2(path_ref.dY(s0[0]), path_ref.dX(s0[0]))
 
     ### Vehicle state [X, Y, phi]
-    x0   = np.array([path_ref.X(s0[0]), path_ref.Y(s0[0]), phi0], 
+    x0   = np.array([path_ref.X(s0[0]), path_ref.Y(s0[0]), phi0],
                     dtype=np.float64)
     ### Vehicle state [vx, vy, r]
-    dq0  = np.array([s0[1], 0., 0.], 
+    dq0  = np.array([s0[1], 0., 0.],
                     dtype=np.float64)
     ### Vehicle input [d, sigma, v_theta]
-    u0   = np.array([0., 0., s0[1]], 
+    u0   = np.array([0., 0., s0[1]],
                     dtype=np.float64)
 
     ## Set the inital value to the internal variable of the simulation environment
     v.x = x0
-    v.dq= dq0 
+    v.dq= dq0
 
     # Define Const Function
     def gen_cost_function():
@@ -111,7 +111,7 @@ def main():
         xg = sympy.Matrix([_ for _ in x])
         xr = sympy.Matrix([a, b, 0, 0, 0, 0, 0, 0, 0, 0])
 
-        X, Y, dX, dY, ddX, ddY = sympy.symbols('X Y dX dY ddX ddY') 
+        X, Y, dX, dY, ddX, ddY = sympy.symbols('X Y dX dY ddX ddY')
 
         # [e_c; e_l] = U@(x-x_ref)
         U = sympy.Matrix([[ sin(atan2(b.diff(x[6]),a.diff(x[6]))),-cos(atan2(b.diff(x[6]),a.diff(x[6]))),0,0,0,0,0, 0,0,0],
@@ -144,11 +144,11 @@ def main():
             track_dY = path_ref.dY(x_guess[6])
             track_ddX = path_ref.ddX(x_guess[6])
             track_ddY = path_ref.ddY(x_guess[6])
-            U_val = U(track_X, track_Y)
+            U_val = U(track_dX, track_dY)
             dE_val = dE(x_guess, track_X, track_Y, track_dX, track_dY, track_ddX, track_ddY)
             R = np.diag([0, 0, 0, 0, 0, 0, 0, cost['rD'], cost['rDelta'], cost['rVs']])
             return 2*((x_guess - x_ref).T@U_val.T@Q@dE_val -x_guess.T@dE_val.T@Q@dE_val).T + 2*x_guess@R
-        
+
         def H_N(x_guess, x_ref):
             return 10*H(x_guess, None, x_ref)
 
@@ -205,7 +205,7 @@ def main():
                   u_lbounds=[bounds['dDl'], bounds['dDeltal'], bounds['dVsl']],
                   u_ubounds=[bounds['dDu'], bounds['dDeltau'], bounds['dVsu']])
 
-    # Init Initial Guess 
+    # Init Initial Guess
     u_bar = np.zeros((u0.shape[0], T), dtype=np.float64)
     x_bar = np.zeros((x0.shape[0]+1+dq0.shape[0]+u0.shape[0], T+1), dtype=np.float64)
 
@@ -216,7 +216,7 @@ def main():
 
     for t in range(T):
         x_bar[:,t+1] = dmodel.PredictForwardEuler(x_bar[:,t], u_bar[:,t], dT)
-  
+
     # Logger
     x = []
     y = []
@@ -242,7 +242,7 @@ def main():
             x_bar[7:10, 0] = v.u
 
             x_bar[:,-2] = x_bar[:,-3]
-            u_bar[:,-1] = np.zeros(3) 
+            u_bar[:,-1] = np.zeros(3)
             x_bar[:,-1] = dmodel.PredictForwardEuler(x_bar[:,-2], u_bar[:,-1], dT)
 
             x_bar[6] = np.unwrap(x_bar[6], path_ref.length/2)
@@ -273,8 +273,8 @@ def main():
         flag = False
         for _ in range(QP_it):
             # MPC iteration
-            x_ref = np.vstack([path_ref.X(x_bar[6]),  path_ref.Y(x_bar[6]), 
-                                np.arctan2(path_ref.dY(x_bar[6]), path_ref.dX(x_bar[6])), 
+            x_ref = np.vstack([path_ref.X(x_bar[6]),  path_ref.Y(x_bar[6]),
+                                np.arctan2(path_ref.dY(x_bar[6]), path_ref.dX(x_bar[6])),
                                 np.zeros((3, T+1)),
                                 x_bar[6],
                                 np.zeros((3, T+1))])
