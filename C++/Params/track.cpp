@@ -43,8 +43,8 @@ Track::Track(std::string file)
 
 TrackPos Track::getTrack()
 {
-    return {Eigen::Map<Eigen::VectorXd>(X.data(), X.size()), Eigen::Map<Eigen::VectorXd>(Y.data(), Y.size()),
-            Eigen::Map<Eigen::VectorXd>(X_inner.data(), X_inner.size()), Eigen::Map<Eigen::VectorXd>(Y_inner.data(), Y_inner.size()),
-            Eigen::Map<Eigen::VectorXd>(X_outer.data(), X_outer.size()), Eigen::Map<Eigen::VectorXd>(Y_outer.data(), Y_outer.size())};
+    return {1*Eigen::Map<Eigen::VectorXd>(X.data(), X.size()), 1*Eigen::Map<Eigen::VectorXd>(Y.data(), Y.size()),
+            1*Eigen::Map<Eigen::VectorXd>(X_inner.data(), X_inner.size()), 1*Eigen::Map<Eigen::VectorXd>(Y_inner.data(), Y_inner.size()),
+            1*Eigen::Map<Eigen::VectorXd>(X_outer.data(), X_outer.size()), 1*Eigen::Map<Eigen::VectorXd>(Y_outer.data(), Y_outer.size())};
 }
 }

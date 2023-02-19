@@ -18,6 +18,8 @@
 #define MPCC_TYPES_H
 
 #include "config.h"
+#include <vector>
+
 namespace mpcc{
 struct State{
     double X;
@@ -28,6 +30,7 @@ struct State{
     double r;
     double s;
     double D;
+    double B;
     double delta;
     double vs;
 
@@ -41,6 +44,7 @@ struct State{
         r = 0.0;
         s = 0.0;
         D = 0.0;
+        B = 0.0;
         delta = 0.0;
         vs = 0.0;
     }
@@ -71,12 +75,14 @@ struct State{
 
 struct Input{
     double dD;
+    double dB;
     double dDelta;
     double dVs;
 
     void setZero()
     {
         dD = 0.0;
+        dB = 0.0;
         dDelta = 0.0;
         dVs = 0.0;
     }
@@ -128,5 +134,7 @@ Input vectorToInput(const InputVector &uk);
 
 State arrayToState(double *xk);
 Input arrayToInput(double *uk);
+
+std::vector<double> stateInputToVector(const State x,const Input u);
 }
 #endif //MPCC_TYPES_H

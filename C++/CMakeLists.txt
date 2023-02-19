@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.8)
 project(MPCC)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -36,8 +36,8 @@ add_executable(MPCC
         Plotting/plotting.cpp
         Plotting/plotting.h)
 
-find_package(Python COMPONENTS Development)
-target_include_directories(MPCC PRIVATE ${Python_INCLUDE_DIRS})
-target_link_libraries(MPCC ${Python_LIBRARIES})
+find_package(Python3 COMPONENTS Interpreter NumPy Development)
+target_include_directories(MPCC PRIVATE ${Python3_INCLUDE_DIRS})
+target_link_libraries(MPCC ${Python3_LIBRARIES})
 
 target_link_libraries(MPCC ${CMAKE_SOURCE_DIR}/External/hpipm/lib/lib/libhpipm.a ${CMAKE_SOURCE_DIR}/External/blasfeo/lib/lib/libblasfeo.a m)

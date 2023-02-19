@@ -32,8 +32,15 @@ class Param{
 public:
     double Cm1;
     double Cm2;
+    double Cm0;
     double Cr0;
     double Cr2;
+    double CBf;
+    double CBr;
+    double Cl;
+    double rho;
+    double S;
+    double aero_split_front;
 
     double Br;
     double Cr;
@@ -87,10 +94,12 @@ public:
     int beta_kin_cost;
 
     double r_D;
+    double r_B;
     double r_delta;
     double r_vs;
 
     double r_dD;
+    double r_dB;
     double r_dDelta;
     double r_dVs;
 
@@ -121,6 +130,7 @@ public:
         double r_l;
         double s_l;
         double D_l;
+        double B_l;
         double delta_l;
         double vs_l;
     };
@@ -133,16 +143,19 @@ public:
         double r_u;
         double s_u;
         double D_u;
+        double B_u;
         double delta_u;
         double vs_u;
     };
     struct LowerInputBounds{
         double dD_l;
+        double dB_l;
         double dDelta_l;
         double dVs_l;
     };
     struct UpperInputBounds{
         double dD_u;
+        double dB_u;
         double dDelta_u;
         double dVs_u;
     };

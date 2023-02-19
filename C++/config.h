@@ -28,14 +28,14 @@ namespace mpcc{
 
 // #define MAX(a,b) (a < b) ? b : a
 
-#define NX 10
-#define NU 3
+#define NX 11
+#define NU 4
 
-#define NB 13 //max number of bounds
+#define NB 15 //max number of bounds
 #define NPC 3 //number of polytopic constraints
 #define NS 3
 
-static constexpr int N = 60;
+static constexpr int N = 100;
 static constexpr double INF = 1E5;
 static constexpr int N_SPLINE = 5000;
 
@@ -49,16 +49,18 @@ struct StateInputIndex{
     int r = 5;
     int s = 6;
     int D = 7;
-    int delta = 8;
-    int vs = 9;
+    int B = 8;
+    int delta = 9;
+    int vs = 10;
 
     int dD = 0;
-    int dDelta = 1;
-    int dVs = 2;
+    int dB = 1;
+    int dDelta = 2;
+    int dVs = 3;
 
     int con_track = 0;
-    int con_tire = 1;
-    int con_alpha = 2;
+    int con_tire_f = 1;
+    int con_tire_r = 2;
 };
 
 static const StateInputIndex si_index;

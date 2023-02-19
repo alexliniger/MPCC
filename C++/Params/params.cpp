@@ -33,9 +33,17 @@ Param::Param(std::string file){
     // Model Parameters
     Cm1 	= jsonModel["Cm1"];
     Cm2 	= jsonModel["Cm2"];
+    Cm0 	= jsonModel["Cm0"];
 
     Cr0 	= jsonModel["Cr0"];
     Cr2 	= jsonModel["Cr2"];
+    CBf     = jsonModel["CBf"];
+    CBr     = jsonModel["CBr"];
+    Cl      = jsonModel["Cl"];
+
+    rho     = jsonModel["rho"];
+    S       = jsonModel["S"];
+    aero_split_front = jsonModel["aero_split_front"];
 
     Br 	= jsonModel["Br"];
     Cr 	= jsonModel["Cr"];
@@ -94,13 +102,15 @@ CostParam::CostParam(std::string file){
     q_r = jsonCost["qR"];
 
     q_beta = jsonCost["qBeta"];
-    beta_kin_cost = 1;//jsonCost["betaKin"];
+    beta_kin_cost = jsonCost["betaKin"];
 
     r_D = jsonCost["rD"];
+    r_B = jsonCost["rB"];
     r_delta = jsonCost["rDelta"];
     r_vs = jsonCost["rVs"];
 
     r_dD = jsonCost["rdD"];
+    r_dB = jsonCost["rdB"];
     r_dDelta = jsonCost["rdDelta"];
     r_dVs = jsonCost["rdVs"];
 
@@ -139,6 +149,7 @@ BoundsParam::BoundsParam(std::string file) {
     lower_state_bounds.r_l = jsonBounds["rl"];
     lower_state_bounds.s_l = jsonBounds["sl"];
     lower_state_bounds.D_l = jsonBounds["Dl"];
+    lower_state_bounds.B_l = jsonBounds["Bl"];
     lower_state_bounds.delta_l = jsonBounds["deltal"];
     lower_state_bounds.vs_l = jsonBounds["vsl"];
 
@@ -150,14 +161,17 @@ BoundsParam::BoundsParam(std::string file) {
     upper_state_bounds.r_u = jsonBounds["ru"];
     upper_state_bounds.s_u = jsonBounds["su"];
     upper_state_bounds.D_u = jsonBounds["Du"];
+    upper_state_bounds.B_u = jsonBounds["Bu"];
     upper_state_bounds.delta_u = jsonBounds["deltau"];
     upper_state_bounds.vs_u = jsonBounds["vsu"];
 
     lower_input_bounds.dD_l = jsonBounds["dDl"];
+    lower_input_bounds.dB_l = jsonBounds["dBl"];
     lower_input_bounds.dDelta_l = jsonBounds["dDeltal"];
     lower_input_bounds.dVs_l = jsonBounds["dVsl"];
 
     upper_input_bounds.dD_u = jsonBounds["dDu"];
+    upper_input_bounds.dB_u = jsonBounds["dBu"];
     upper_input_bounds.dDelta_u = jsonBounds["dDeltau"];
     upper_input_bounds.dVs_u = jsonBounds["dVsu"];
 }
@@ -186,6 +200,7 @@ NormalizationParam::NormalizationParam(std::string file)
     T_x(si_index.r,si_index.r) = jsonNorm["r"];
     T_x(si_index.s,si_index.s) = jsonNorm["s"];
     T_x(si_index.D,si_index.D) = jsonNorm["D"];
+    T_x(si_index.B,si_index.B) = jsonNorm["B"];
     T_x(si_index.delta,si_index.delta) = jsonNorm["delta"];
     T_x(si_index.vs,si_index.vs) = jsonNorm["vs"];
 
@@ -198,6 +213,7 @@ NormalizationParam::NormalizationParam(std::string file)
 
     T_u.setIdentity();
     T_u(si_index.dD,si_index.dD) = jsonNorm["dD"];
+    T_u(si_index.dB,si_index.dB) = jsonNorm["dB"];
     T_u(si_index.dDelta,si_index.dDelta) = jsonNorm["dDelta"];
     T_u(si_index.dVs,si_index.dVs) = jsonNorm["dVs"];
 

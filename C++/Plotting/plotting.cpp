@@ -88,8 +88,7 @@ void Plotting::plotRun(const std::list<MPCReturn> &log, const TrackPos &track_xy
         plot_eps_x.push_back(cos(t)*param_.Dr*param_.e_eps);
         plot_eps_y.push_back(sin(t)*param_.Dr*1./param_.e_long*param_.e_eps);
     }
-
-    plt::figure(1);
+    plt::figure();
     plt::plot(plot_xc,plot_yc,"r--");
     plt::plot(plot_xi,plot_yi,"k-");
     plt::plot(plot_xo,plot_yo,"k-");
@@ -97,58 +96,69 @@ void Plotting::plotRun(const std::list<MPCReturn> &log, const TrackPos &track_xy
     plt::axis("equal");
     plt::xlabel("X [m]");
     plt::ylabel("Y [m]");
-    plt::figure(2);
-    plt::subplot(3,2,1);
+
+    plt::figure();
+    // plt::subplot(3,2,1);
     plt::plot(plot_x);
     plt::ylabel("X [m]");
-    plt::subplot(3,2,2);
+    plt::figure();
+    // plt::subplot(3,2,2);
     plt::plot(plot_y);
     plt::ylabel("Y [m]");
-    plt::subplot(3,2,3);
+    plt::figure();
+    // plt::subplot(3,2,3);
     plt::plot(plot_phi);
     plt::ylabel("phi [rad]");
-    plt::subplot(3,2,4);
+    plt::figure();
+    // plt::subplot(3,2,4);
     plt::plot(plot_vx);
     plt::ylabel("v_x [m/s]");
-    plt::subplot(3,2,5);
+    plt::figure();
+    // plt::subplot(3,2,5);
     plt::plot(plot_vy);
     plt::ylabel("v_y [m/s]");
-    plt::subplot(3,2,6);
+    plt::figure();
+    // plt::subplot(3,2,6);
     plt::plot(plot_r);
     plt::ylabel("r [rad/s]");
 
 
-    plt::figure(3);
-    plt::subplot(3,1,1);
+    plt::figure();
+    // plt::subplot(3,1,1);
     plt::plot(plot_d);
     plt::ylabel("D [-]");
-    plt::subplot(3,1,2);
+    plt::figure();
+    // plt::subplot(3,1,2);
     plt::plot(plot_delta);
     plt::ylabel("delta [rad]");
-    plt::subplot(3,1,3);
+    plt::figure();
+    // plt::subplot(3,1,3);
     plt::plot(plot_vs);
     plt::ylabel("v_s [m/s]");
 
-    plt::figure(4);
-    plt::subplot(3,1,1);
+    plt::figure();
+    // plt::subplot(3,1,1);
     plt::plot(plot_dd);
     plt::ylabel("dot{D} [-]");
-    plt::subplot(3,1,2);
+    plt::figure();
+    // plt::subplot(3,1,2);
     plt::plot(plot_ddelta);
     plt::ylabel("dot{delta} [rad/s]");
-    plt::subplot(3,1,3);
+    plt::figure();
+    // plt::subplot(3,1,3);
     plt::plot(plot_dvs);
     plt::ylabel("dot{v_s} [m/s^2]");
 
-    plt::figure(5);
+    plt::figure();
     plt::plot(plot_s);
     plt::ylabel("s [m]");
 
-    plt::figure(6);
-    plt::subplot(1,2,1);
+    plt::figure();
+    // plt::subplot(1,2,1);
     plt::plot(plot_alpha_f);
     plt::ylabel("alpha_f [rad]");
-    plt::subplot(1,2,2);
+    plt::figure();
+    // plt::subplot(1,2,2);
     plt::plot(plot_F_ry0,plot_F_rx0);
     plt::plot(plot_F_ry1,plot_F_rx1);
     plt::plot(plot_eps_x,plot_eps_y);
