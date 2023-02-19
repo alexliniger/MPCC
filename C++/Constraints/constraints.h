@@ -20,6 +20,7 @@
 #include "config.h"
 #include "Spline/arc_length_spline.h"
 #include "Model/model.h"
+#include <cppad/cg.hpp>
 namespace mpcc{
 struct ConstrainsMatrix {
     // dl <= C xk + D uk <= du
@@ -41,14 +42,19 @@ public:
 
     Constraints();
     Constraints(double Ts,const PathToJson &path);
+
+    std::unique_ptr<CppAD::cg::GenericModel<double>> tire_con_front_model_;
+    std::unique_ptr<CppAD::cg::GenericModel<double>> tire_con_rear_model_;
 private:
     OneDConstraint getTrackConstraints(const ArcLengthSpline &track,const State &x) const;
 
     OneDConstraint getTireConstraintRear(const State &x) const;
-    C_i_MPC getTireConstraintRearJac(const State &x) const;
 
-    OneDConstraint getAlphaConstraintFront(const State &x) const;
-    C_i_MPC getAlphaConstraintFrontJac(const State &x) const;
+    OneDConstraint getTireConstraintFront(const State &x) const;
+
+    std::unique_ptr<CppAD::cg::LinuxDynamicLib<double>> tire_con_front_lib_;
+
+    std::unique_ptr<CppAD::cg::LinuxDynamicLib<double>> tire_con_rear_lib_;
 
     Model model_;
     Param param_;

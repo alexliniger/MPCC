@@ -91,7 +91,7 @@ private:
 
     void setMPCProblem();
 
-    void setStage(const State &xk, const Input &uk, int time_step);
+    void setStage(const State &xk, const Input &uk,const State &xk1, int time_step);
 
     CostMatrix normalizeCost(const CostMatrix &cost_mat);
     LinModelMatrix normalizeDynamics(const LinModelMatrix &lin_model);

@@ -1,15 +1,16 @@
 
 {
   "n_sqp": 2,
-  "n_reset": 2,
+  "n_reset": 10,
   "sqp_mixing": 0.9,
-  "n_sim": 1000,
-  "Ts": 0.05,
-  "v0": 10.0,
+  "n_sim": 100,
+  "Ts": 0.01,
+  "v0": 20.0,
   
   "model_path": "Params/model.json",
   "cost_path": "Params/cost.json",
   "bounds_path": "Params/bounds.json",
   "track_path": "Params/track.json",
-  "normalization_path": "Params/normalization.json"
+  "normalization_path": "Params/normalization.json",
+  "adcodegen_path": "ADCodeGen/build"
 }

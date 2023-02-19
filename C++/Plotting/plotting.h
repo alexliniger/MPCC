@@ -40,6 +40,7 @@ private:
     void plotBox(const State &x0) const;
 
     Model model_;
+    Constraints constraints_;
     Param param_;
 };
 }

@@ -107,12 +107,12 @@ public:
     double q_r_N_mult;
 
     double sc_quad_track;
-    double sc_quad_tire;
-    double sc_quad_alpha;
+    double sc_quad_tire_r;
+    double sc_quad_tire_f;
 
     double sc_lin_track;
-    double sc_lin_tire;
-    double sc_lin_alpha;
+    double sc_lin_tire_r;
+    double sc_lin_tire_f;
 
     CostParam();
     CostParam(std::string file);

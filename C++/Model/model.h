@@ -20,6 +20,8 @@
 #include "config.h"
 #include "types.h"
 #include "Params/params.h"
+#include <cppad/cg.hpp>
+
 namespace mpcc{
 //Return
 struct LinModelMatrix {
@@ -62,27 +64,20 @@ struct FrictionForceDerivatives {
 
 class Model {
 public:
-    double getSlipAngleFront(const State &x) const;
-    double getSlipAngleRear(const State &x) const;
-
-    TireForces getForceFront(const State &x) const;
-    TireForces getForceRear(const State &x) const;
-    double getForceFriction(const State &x) const;
-    NormalForces getForceNormal(const State &x) const;
-
-    TireForcesDerivatives getForceFrontDerivatives(const State &x) const;
-    TireForcesDerivatives getForceRearDerivatives(const State &x) const;
-    FrictionForceDerivatives getForceFrictionDerivatives(const State &x) const;
-
     StateVector getF(const State &x,const Input &u) const;
 
-    LinModelMatrix getLinModel(const State &x, const Input &u) const;
+    LinModelMatrix getLinModel(const State &x, const Input &u,const State &x_next) const;
 
     Model();
     Model(double Ts,const PathToJson &path);
 private:
-    LinModelMatrix getModelJacobian(const State &x, const Input &u) const;
-    LinModelMatrix discretizeModel(const LinModelMatrix &lin_model_c) const;
+    LinModelMatrix discretizeModel(const State &x, const Input &u,const State &x_next) const;
+
+    std::unique_ptr<CppAD::cg::LinuxDynamicLib<double>> RK4_lib_;
+    std::unique_ptr<CppAD::cg::GenericModel<double>> RK4_model_;
+
+    std::unique_ptr<CppAD::cg::LinuxDynamicLib<double>> f_dyn_lib_;
+    std::unique_ptr<CppAD::cg::GenericModel<double>> f_dyn_model_;
 
     Param param_;
     const double Ts_;

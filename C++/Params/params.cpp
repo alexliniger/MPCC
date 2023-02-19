@@ -25,7 +25,7 @@ Param::Param(std::string file){
     /////////////////////////////////////////////////////
     // Loading Model and Constraint Parameters //////////
     /////////////////////////////////////////////////////
-    // std::cout << "model" << std::endl;
+    std::cout << "model" << std::endl;
 
     std::ifstream iModel(file);
     json jsonModel;
@@ -87,7 +87,7 @@ CostParam::CostParam(std::string file){
     /////////////////////////////////////////////////////
     // Loading Cost Parameters //////////////////////////
     /////////////////////////////////////////////////////
-    // std::cout << "cost" << std::endl;
+    std::cout << "cost" << std::endl;
 
     std::ifstream iCost(file);
     json jsonCost;
@@ -118,12 +118,12 @@ CostParam::CostParam(std::string file){
     q_r_N_mult = jsonCost["qRNmult"];
 
     sc_quad_track = jsonCost["sc_quad_track"];
-    sc_quad_tire= jsonCost["sc_quad_tire"];
-    sc_quad_alpha = jsonCost["sc_quad_alpha"];
+    sc_quad_tire_r= jsonCost["sc_quad_tire_r"];
+    sc_quad_tire_f = jsonCost["sc_quad_tire_f"];
 
     sc_lin_track = jsonCost["sc_lin_track"];
-    sc_lin_tire = jsonCost["sc_lin_tire"];
-    sc_lin_alpha = jsonCost["sc_lin_alpha"];
+    sc_lin_tire_r = jsonCost["sc_lin_tire_r"];
+    sc_lin_tire_f = jsonCost["sc_lin_tire_f"];
 }
 
 BoundsParam::BoundsParam() {
@@ -135,7 +135,7 @@ BoundsParam::BoundsParam(std::string file) {
     /////////////////////////////////////////////////////
     // Loading Cost Parameters //////////////////////////
     /////////////////////////////////////////////////////
-    // std::cout << "bounds" << std::endl;
+    std::cout << "bounds" << std::endl;
 
     std::ifstream iBounds(file);
     json jsonBounds;
@@ -185,7 +185,7 @@ NormalizationParam::NormalizationParam(std::string file)
     /////////////////////////////////////////////////////
     // Loading Normalization Parameters /////////////////
     /////////////////////////////////////////////////////
-    // std::cout << "norm" << std::endl;
+    std::cout << "norm" << std::endl;
 
     std::ifstream iNorm(file);
     json jsonNorm;

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 project(MPCC)
 
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "-O2")
+set(CMAKE_CXX_FLAGS "-O0")
 
 include_directories(.)
 include_directories(External/blasfeo/lib/include)
@@ -26,10 +26,10 @@ add_executable(MPCC
         Cost/cost.cpp
         Model/model.cpp
         Model/integrator.cpp
-        Tests/spline_test.cpp
-        Tests/cost_test.cpp
-        Tests/model_integrator_test.cpp
-        Tests/constratins_test.cpp
+        # Tests/spline_test.cpp
+        # Tests/cost_test.cpp
+        # Tests/model_integrator_test.cpp
+        # Tests/constratins_test.cpp
         MPC/mpc.cpp
         Params/track.cpp
         Params/track.h

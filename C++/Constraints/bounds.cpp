@@ -59,24 +59,24 @@ Bounds::Bounds(BoundsParam bounds_param)
     std::cout << "bounds initialized" << std::endl;
 }
 
-Bounds_x Bounds::getBoundsLX() const
+Bounds_x Bounds::getBoundsLX(const State &x) const
 {
-    return  l_bounds_x_;
+    return  l_bounds_x_-stateToVector(x);
 }
 
-Bounds_x Bounds::getBoundsUX() const
+Bounds_x Bounds::getBoundsUX(const State &x) const
 {
-    return  u_bounds_x_;
+    return  u_bounds_x_-stateToVector(x);
 }
 
-Bounds_u Bounds::getBoundsLU() const
+Bounds_u Bounds::getBoundsLU(const Input &u) const
 {
-    return  l_bounds_u_;
+    return  l_bounds_u_-inputToVector(u);
 }
 
-Bounds_u Bounds::getBoundsUU() const
+Bounds_u Bounds::getBoundsUU(const Input &u) const
 {
-    return  u_bounds_u_;
+    return  u_bounds_u_-inputToVector(u);
 }
 
 Bounds_s Bounds::getBoundsLS() const

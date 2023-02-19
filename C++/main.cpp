@@ -14,10 +14,10 @@
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-#include "Tests/spline_test.h"
-#include "Tests/model_integrator_test.h"
-#include "Tests/constratins_test.h"
-#include "Tests/cost_test.h"
+// #include "Tests/spline_test.h"
+// #include "Tests/model_integrator_test.h"
+// #include "Tests/constratins_test.h"
+// #include "Tests/cost_test.h"
 
 #include "MPC/mpc.h"
 #include "Model/integrator.h"
@@ -30,15 +30,18 @@ using json = nlohmann::json;
 int main() {
 
     using namespace mpcc;
-    std::ifstream iConfig("Params/config.json");
+    std::string go_to_path = "../";
+    std::ifstream iConfig(go_to_path + "Params/config.json");
     json jsonConfig;
     iConfig >> jsonConfig;
 
-    PathToJson json_paths {jsonConfig["model_path"],
-                           jsonConfig["cost_path"],
-                           jsonConfig["bounds_path"],
-                           jsonConfig["track_path"],
-                           jsonConfig["normalization_path"]};
+    PathToJson json_paths {go_to_path + std::string(jsonConfig["model_path"]),
+                           go_to_path + std::string(jsonConfig["cost_path"]),
+                           go_to_path + std::string(jsonConfig["bounds_path"]),
+                           go_to_path + std::string(jsonConfig["track_path"]),
+                           go_to_path + std::string(jsonConfig["normalization_path"]),
+                           go_to_path + std::string(jsonConfig["adcodegen_path"])};
+
 
     // std::cout << testSpline() << std::endl;
     // std::cout << testArcLengthSpline(json_paths) << std::endl;
@@ -51,7 +54,6 @@ int main() {
     // std::cout << testTrackConstraint(json_paths) << std::endl;
 
     // std::cout << testCost(json_paths) << std::endl;
-
     Integrator integrator = Integrator(jsonConfig["Ts"],json_paths);
     Plotting plotter = Plotting(jsonConfig["Ts"],json_paths);
 
@@ -62,7 +64,7 @@ int main() {
     MPC mpc(jsonConfig["n_sqp"],jsonConfig["n_reset"],jsonConfig["sqp_mixing"],jsonConfig["Ts"],json_paths);
     mpc.setTrack(track_xy.X,track_xy.Y);
     const double phi_0 = std::atan2(track_xy.Y(1) - track_xy.Y(0),track_xy.X(1) - track_xy.X(0));
-    State x0 = {track_xy.X(0),track_xy.Y(0),phi_0,jsonConfig["v0"],0,0,0,0.5,0,jsonConfig["v0"]};
+    State x0 = {track_xy.X(0),track_xy.Y(0),phi_0,jsonConfig["v0"],0,0,0,0,0.5,0,jsonConfig["v0"]};
     for(int i=0;i<jsonConfig["n_sim"];i++)
     {
         MPCReturn mpc_sol = mpc.runMPC(x0);

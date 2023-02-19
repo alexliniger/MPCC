@@ -12,7 +12,7 @@
   "betaKin": 1,
 
   "rD" : 1E-3,
-  "rB" : 1E0,
+  "rB" : 1E3,
   "rDelta" : 1E-3,
   "rVs" : 1E-5,
 
@@ -24,11 +24,11 @@
   "qCNmult": 1000.0,
   "qRNmult": 1.0,
 
-  "sc_quad_track": 100.0,
-  "sc_quad_tire": 100.0,
-  "sc_quad_alpha": 100.0,
+  "sc_quad_track": 0.1,
+  "sc_quad_tire_f": 0.0,
+  "sc_quad_tire_r": 0.0,
 
-  "sc_lin_track": 10.0,
-  "sc_lin_tire": 10.0,
-  "sc_lin_alpha": 10.0
+  "sc_lin_track": 0.05,
+  "sc_lin_tire_f": 0.1,
+  "sc_lin_tire_r": 0.1
 }

@@ -186,11 +186,6 @@ CostMatrix Cost::getHeadingCost(const ArcLengthSpline &track, const State &x,int
     double theta_ref = atan2(dy_ref,dx_ref);
     theta_ref += 2.0*M_PI*std::round((x.phi - theta_ref)/(2.0*M_PI));
 
-    // if(std::fabs(x.phi - theta_ref)>= 1.5){
-    //     std::cout << "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk" << std::endl;
-    // }
-
-
     Q_MPC Q_heading_cost = Q_MPC::Zero();
     Q_heading_cost(si_index.phi,si_index.phi) = 2.0*cost_param_.q_mu;
     q_MPC q_heading_cost = q_MPC::Zero();
@@ -225,19 +220,18 @@ CostMatrix Cost::getSoftConstraintCost() const
     Z_MPC Z_cost = Z_MPC::Identity();
     z_MPC z_cost = z_MPC::Ones();
     // cost of "real" inputs
-
     Z_cost(si_index.con_track,si_index.con_track) = cost_param_.sc_quad_track;
-    Z_cost(si_index.con_tire,si_index.con_tire) = cost_param_.sc_quad_tire;
-    Z_cost(si_index.con_alpha,si_index.con_alpha) = cost_param_.sc_quad_alpha;
+    Z_cost(si_index.con_tire_r,si_index.con_tire_r) = cost_param_.sc_quad_tire_r;
+    Z_cost(si_index.con_tire_f,si_index.con_tire_f) = cost_param_.sc_quad_tire_f;
 
     z_cost(si_index.con_track) = cost_param_.sc_lin_track;
-    z_cost(si_index.con_tire) = cost_param_.sc_lin_tire;
-    z_cost(si_index.con_alpha) = cost_param_.sc_lin_alpha;
+    z_cost(si_index.con_tire_r) = cost_param_.sc_lin_tire_r;
+    z_cost(si_index.con_tire_f) = cost_param_.sc_lin_tire_f;
 
     return {Q_MPC::Zero(),R_MPC::Zero(),S_MPC::Zero(),q_MPC::Zero(),r_MPC::Zero(),Z_cost,z_cost};
 }
 
-CostMatrix Cost::getCost(const ArcLengthSpline &track, const State &x,const int k) const
+CostMatrix Cost::getCost(const ArcLengthSpline &track, const State &x, const Input &u,const int k) const
 {
     // generate quadratic cost function
     const CostMatrix contouring_cost = getContouringCost(track,x,k);
@@ -253,11 +247,17 @@ CostMatrix Cost::getCost(const ArcLengthSpline &track, const State &x,const int 
     Q_MPC Q_not_sym = contouring_cost.Q + heading_cost.Q + input_cost.Q + beta_cost.Q;
     Q_MPC Q_reg = 1e-9*Q_MPC::Identity();
 
-    const Q_MPC Q = 0.5*(Q_not_sym.transpose()+Q_not_sym);// + Q_reg;//contouring_cost.Q + input_cost.Q + beta_cost.Q;
-    const R_MPC R = contouring_cost.R + heading_cost.R + input_cost.R + beta_cost.R;
-    const q_MPC q = contouring_cost.q + heading_cost.q + input_cost.q + beta_cost.q;
-    const r_MPC r = contouring_cost.r + heading_cost.r + input_cost.r + beta_cost.r;
-    const Z_MPC Z = soft_con_cost.Z;
+    Q_MPC Q_full = 0.5*(Q_not_sym.transpose()+Q_not_sym);
+    R_MPC R_full = contouring_cost.R + heading_cost.R + input_cost.R + beta_cost.R;
+    q_MPC q_full = contouring_cost.q + heading_cost.q + input_cost.q + beta_cost.q;
+    r_MPC r_full = contouring_cost.r + heading_cost.r + input_cost.r + beta_cost.r;
+
+    //TODO do this properly directly in the differnet functions computing the cost
+    const Q_MPC Q = Q_full;
+    const R_MPC R = R_full;
+    const q_MPC q = q_full + (stateToVector(x).adjoint()*Q_full).adjoint(); 
+    const r_MPC r = r_full + (inputToVector(u).adjoint()*R_full).adjoint();
+    const Z_MPC Z = 2.0*soft_con_cost.Z;
     const z_MPC z = soft_con_cost.z;
 
 

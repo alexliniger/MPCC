@@ -25,6 +25,10 @@ Constraints::Constraints(double Ts,const PathToJson &path)
 :model_(Ts,path),
 param_(Param(path.param_path))
 {
+    tire_con_front_lib_ = (std::make_unique<CppAD::cg::LinuxDynamicLib<double>>(path.adcodegen_path+"/cppad_cg_TCF.so"));
+    tire_con_rear_lib_ = (std::make_unique<CppAD::cg::LinuxDynamicLib<double>>(path.adcodegen_path+"/cppad_cg_TCR.so"));
+    tire_con_front_model_ = tire_con_front_lib_->model("TireConFront");
+    tire_con_rear_model_ = tire_con_rear_lib_->model("TireConRear");
 }
 
 OneDConstraint Constraints::getTrackConstraints(const ArcLengthSpline &track,const State &x) const
@@ -56,104 +60,41 @@ OneDConstraint Constraints::getTrackConstraints(const ArcLengthSpline &track,con
 
 OneDConstraint Constraints::getTireConstraintRear(const State &x) const
 {
-    // compute tire friction elipse constraints
-    // (param_.E_long*Frx)^2 + Fry^2 <= (param_.E_eps*F_max)^2
-    const StateVector x_vec = stateToVector(x);
-    const TireForces f_rear = model_.getForceRear(x);
-    const NormalForces f_normal = model_.getForceNormal(x);
+        // compute linearized slip angle constraints
+    // -Inf <= F_comb - F_max <= 0
+    State x_lin = x;
+    x_lin.vxNonZero1(param_.vx_zero);
+    const StateVector x_vec_lin = stateToVector(x_lin);
+    const std::vector<double> x_std_vec(x_vec_lin.data(),x_vec_lin.data() + x_vec_lin.size());
 
-    // compute tire friction constraint jacobean
-    const C_i_MPC C_tire_constraint = getTireConstraintRearJac(x);
+    // compute the jacobean of alpha_f
+    const C_i_MPC C_tire_constraint_rear = Eigen::Map<C_i_MPC>((tire_con_rear_model_->Jacobian(x_std_vec)).data());
+    // compute the bounds given the Tylor series expansion
+    // const StateVector x_vec = stateToVector(x);
+    const double tire_constraint_rear_lower = -INF;
+    const double tire_constraint_rear_upper = -tire_con_rear_model_->ForwardZero(x_std_vec)[0];
 
-    // compute zero order term and max force
-//    const double tireCon0 = std::sqrt(std::pow(param_.e_long*f_rear.F_x,2) + std::pow(f_rear.F_y,2)); //zero order term
-    const double tireCon0 = std::pow(param_.e_long*f_rear.F_x/f_normal.F_N_rear,2) + std::pow(f_rear.F_y/f_normal.F_N_rear,2); //zero order term
-    const double maxForce = std::pow(param_.e_eps*param_.Dr/f_normal.F_N_rear,2);//param_.e_eps*param_.Dr;// //max allowed force
-
-    // set bounds given linearized constraint
-    // 0 <= 'Jac TC' (x - x0) + TC(x0) <= F_max
-    const double tire_constraint_lower = C_tire_constraint*x_vec-tireCon0;
-    const double tire_constraint_upper = maxForce+C_tire_constraint*x_vec-tireCon0;
-
-    return {C_tire_constraint,tire_constraint_lower,tire_constraint_upper};
+    return {C_tire_constraint_rear,tire_constraint_rear_lower,tire_constraint_rear_upper};
 }
 
-C_i_MPC Constraints::getTireConstraintRearJac(const State &x) const
-{
-    // compute Jacobean of the tire constraints
-    const TireForces f_rear = model_.getForceRear(x);
-    const TireForcesDerivatives df_rear = model_.getForceRearDerivatives(x);
-    const NormalForces f_normal = model_.getForceNormal(x);
 
-//    const double TC = 2.0*std::sqrt(std::pow(param_.e_long*f_rear.F_x,2) + std::pow(f_rear.F_y,2));
-//
-//    // Tire constraint derivatives
-//    // TC = (param_.E_long*Frx)^2 + Fry^2
-//    const double dTC_dvx = (2.0*param_.e_long*f_rear.F_x*df_rear.dF_x_vx + 2.0*f_rear.F_y*df_rear.dF_y_vx)/TC;
-//    const double dTC_dvy = (2.0*f_rear.F_y*df_rear.dF_y_vy)/TC;
-//    const double dTC_dr  = (2.0*f_rear.F_y*df_rear.dF_y_r)/TC;
-//    const double dTC_dD  = (2.0*param_.e_long*f_rear.F_x*df_rear.dF_x_D)/TC;
-
-    const double TC = std::pow(param_.e_long*f_rear.F_x/f_normal.F_N_rear,2) + std::pow(f_rear.F_y/f_normal.F_N_rear,2);
-
-    // Tire constraint derivatives
-    // TC = (param_.e_long*Frx)^2 + Fry^2
-    const double dTC_dvx = (2.0*param_.e_long*f_rear.F_x/f_normal.F_N_rear*param_.e_long*df_rear.dF_x_vx/f_normal.F_N_rear +
-                            2.0*f_rear.F_y/f_normal.F_N_rear*df_rear.dF_y_vx/f_normal.F_N_rear);
-    const double dTC_dvy = (2.0*f_rear.F_y/f_normal.F_N_rear*df_rear.dF_y_vy/f_normal.F_N_rear);
-    const double dTC_dr  = (2.0*f_rear.F_y/f_normal.F_N_rear*df_rear.dF_y_r/f_normal.F_N_rear);
-    const double dTC_dD  = (2.0*param_.e_long*f_rear.F_x/f_normal.F_N_rear*param_.e_long*df_rear.dF_x_D/f_normal.F_N_rear);
-
-    // Copy partial derivatives in jacobean matrix
-    C_i_MPC Jac_tireCon = C_i_MPC::Zero();
-    Jac_tireCon(si_index.vx) = dTC_dvx;
-    Jac_tireCon(si_index.vy) = dTC_dvy;
-    Jac_tireCon(si_index.r)  = dTC_dr;
-    Jac_tireCon(si_index.D)  = dTC_dD;
-
-    return Jac_tireCon;
-}
-
-OneDConstraint Constraints::getAlphaConstraintFront(const State &x) const
+OneDConstraint Constraints::getTireConstraintFront(const State &x) const
 {
     // compute linearized slip angle constraints
-    // -alpha_max <= alpha_f <= alpha_max
-    const StateVector x_vec = stateToVector(x);
-    const double alpha_f = model_.getSlipAngleFront(x);
+    // -Inf <= F_comb - F_max <= 0
+    State x_lin = x;
+    x_lin.vxNonZero1(param_.vx_zero);
+    const StateVector x_vec_lin = stateToVector(x_lin);
+    const std::vector<double> x_std_vec(x_vec_lin.data(),x_vec_lin.data() + x_vec_lin.size());
+
     // compute the jacobean of alpha_f
-    const C_i_MPC C_alpha_constraint = getAlphaConstraintFrontJac(x);
+    const C_i_MPC C_tire_constraint_front = Eigen::Map<C_i_MPC>((tire_con_front_model_->Jacobian(x_std_vec)).data());
     // compute the bounds given the Tylor series expansion
-    const double alpha_constraint_lower = -param_.max_alpha-alpha_f+C_alpha_constraint*x_vec;
-    const double alpha_constraint_upper =  param_.max_alpha-alpha_f+C_alpha_constraint*x_vec;
+    // const StateVector x_vec = stateToVector(x);
+    const double tire_constraint_front_lower = -INF;
+    const double tire_constraint_front_upper = -tire_con_front_model_->ForwardZero(x_std_vec)[0];
 
-    return {C_alpha_constraint,alpha_constraint_lower,alpha_constraint_upper};
-}
-
-C_i_MPC Constraints::getAlphaConstraintFrontJac(const State &x) const
-{
-    // compute the alpha_f jacobian
-    const double vx     = x.vx;
-    const double vy     = x.vy;
-    const double r      = x.r;
-    const double delta  = x.delta;
-
-    C_i_MPC Jac_alphaCon;
-    // alpha_f = -atan(vy+r*param_.lf/vx) + delta;
-    // compute partial derivatives
-    const double dalpha_f_dvx    = (vy+r*param_.lf)/(std::pow(vy+r*param_.lf,2)+std::pow(vx,2));
-    const double dalpha_f_dvy    = -vx/(std::pow(vy+r*param_.lf,2)+std::pow(vx,2));
-    const double dalpha_f_dr     = -(vx*param_.lf)/(std::pow(vy+r*param_.lf,2)+std::pow(vx,2));
-    const double dalpha_f_ddelta = 1.0;
-
-    // Copy partial derivatives in jacobean matrix
-    Jac_alphaCon.setZero();
-    Jac_alphaCon(si_index.vx)   = dalpha_f_dvx;
-    Jac_alphaCon(si_index.vy)   = dalpha_f_dvy;
-    Jac_alphaCon(si_index.r)    = dalpha_f_dr;
-    Jac_alphaCon(si_index.delta)= dalpha_f_ddelta;
-
-    return Jac_alphaCon;
-
+    return {C_tire_constraint_front,tire_constraint_front_lower,tire_constraint_front_upper};
 }
 
 ConstrainsMatrix Constraints::getConstraints(const ArcLengthSpline &track,const State &x,const Input &u) const
@@ -164,7 +105,7 @@ ConstrainsMatrix Constraints::getConstraints(const ArcLengthSpline &track,const 
     ConstrainsMatrix constrains_matrix;
     const OneDConstraint track_constraints = getTrackConstraints(track,x);
     const OneDConstraint tire_constraints_rear = getTireConstraintRear(x);
-    const OneDConstraint alpha_constraints_front = getAlphaConstraintFront(x);
+    const OneDConstraint tire_constraints_front = getTireConstraintFront(x);
 
     C_MPC C_constrains_matrix;
     d_MPC dl_constrains_matrix;
@@ -174,13 +115,13 @@ ConstrainsMatrix Constraints::getConstraints(const ArcLengthSpline &track,const 
     dl_constrains_matrix(si_index.con_track) = track_constraints.dl_i;
     du_constrains_matrix(si_index.con_track) = track_constraints.du_i;
 
-    C_constrains_matrix.row(si_index.con_tire) = tire_constraints_rear.C_i;
-    dl_constrains_matrix(si_index.con_tire) = tire_constraints_rear.dl_i;
-    du_constrains_matrix(si_index.con_tire) = tire_constraints_rear.du_i;
+    C_constrains_matrix.row(si_index.con_tire_r) = tire_constraints_rear.C_i;
+    dl_constrains_matrix(si_index.con_tire_r) = tire_constraints_rear.dl_i;
+    du_constrains_matrix(si_index.con_tire_r) = tire_constraints_rear.du_i;
 
-    C_constrains_matrix.row(si_index.con_alpha) = alpha_constraints_front.C_i;
-    dl_constrains_matrix(si_index.con_alpha) = alpha_constraints_front.dl_i;
-    du_constrains_matrix(si_index.con_alpha) = alpha_constraints_front.du_i;
+    C_constrains_matrix.row(si_index.con_tire_f) = tire_constraints_front.C_i;
+    dl_constrains_matrix(si_index.con_tire_f) = tire_constraints_front.dl_i;
+    du_constrains_matrix(si_index.con_tire_f) = tire_constraints_front.du_i;
 
     return {C_constrains_matrix,D_MPC::Zero(),dl_constrains_matrix,du_constrains_matrix};
 }
