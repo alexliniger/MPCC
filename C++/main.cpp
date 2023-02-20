@@ -68,7 +68,8 @@ int main() {
     for(int i=0;i<jsonConfig["n_sim"];i++)
     {
         MPCReturn mpc_sol = mpc.runMPC(x0);
-        x0 = integrator.simTimeStep(x0,mpc_sol.u0,jsonConfig["Ts"]);
+        x0 = mpc_sol.mpc_horizon[1].xk;
+        // x0 = integrator.simTimeStep(x0,mpc_sol.u0,jsonConfig["Ts"]);
         log.push_back(mpc_sol);
     }
     plotter.plotRun(log,track_xy);

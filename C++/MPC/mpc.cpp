@@ -68,9 +68,9 @@ void MPC::setStage(const State &xk, const Input &uk, const State &xk1, const int
     }
 
     State xk_nz = xk;
-    xk_nz.vxNonZero1(param_.vx_zero);
+    xk_nz.vxNonZero(param_.vx_zero);
     State xk1_nz = xk1;
-    xk1_nz.vxNonZero1(param_.vx_zero);
+    xk1_nz.vxNonZero(param_.vx_zero);
 
     stages_[time_step].cost_mat = normalizeCost(cost_.getCost(track_,xk_nz,uk,time_step));
     stages_[time_step].lin_model = normalizeDynamics(model_.getLinModel(xk_nz,uk,xk1_nz));
