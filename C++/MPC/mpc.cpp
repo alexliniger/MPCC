@@ -68,7 +68,7 @@ void MPC::setStage(const State &xk, const Input &uk, const State &xk1, const int
     }
 
     State xk_nz = xk;
-    xk_nz.vxNonZero(param_.vx_zero);
+    xk_nz.vxNonZero1(param_.vx_zero);
     State xk1_nz = xk1;
     xk1_nz.vxNonZero1(param_.vx_zero);
 
@@ -157,7 +157,7 @@ void MPC::unwrapInitialGuess()
     double L = track_.getLength();
     for(int i=1;i<=N;i++)
     {
-        if((initial_guess_[i].xk.phi - initial_guess_[i-1].xk.phi) < -M_PI)
+        if((initial_guess_[i].xk.phi - initial_guess_[i-1].xk.phi) < M_PI)
         {
             initial_guess_[i].xk.phi += 2.*M_PI;
         }
@@ -234,7 +234,7 @@ MPCReturn MPC::runMPC(State &x0)
     for(int i=0;i<n_sqp_;i++)
     {
         setMPCProblem();
-        State x0_normalized = vectorToState(normalization_param_.T_x_inv*(stateToVector(x0)-stateToVector(x0)));
+        State x0_normalized = vectorToState(normalization_param_.T_x_inv*(stateToVector(x0)-1.0*stateToVector(x0)));
         optimal_solution_ = solver_interface_->solveMPC(stages_,x0_normalized, &solver_status);
         optimal_solution_ = deNormalizeSolution(optimal_solution_);
         if(solver_status != 0)

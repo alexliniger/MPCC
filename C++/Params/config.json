@@ -2,10 +2,10 @@
 {
   "n_sqp": 2,
   "n_reset": 10,
-  "sqp_mixing": 0.9,
-  "n_sim": 100,
-  "Ts": 0.01,
-  "v0": 20.0,
+  "sqp_mixing": 0.8,
+  "n_sim": 400,
+  "Ts": 0.05,
+  "v0": 10.0,
   
   "model_path": "Params/model.json",
   "cost_path": "Params/cost.json",

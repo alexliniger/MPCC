@@ -71,10 +71,10 @@ struct State{
             delta = 0.0;
         }
     }
-    
+
     void vxNonZero1(double vx_zero) {
         if (vx < vx_zero) {}; // FIX: this was added only to avoid unused var error
-        vx = std::max(vx,0.5);
+        vx = std::max(vx,5.0);
     }
 };
 

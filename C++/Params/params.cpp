@@ -39,8 +39,8 @@ Param::Param(std::string file){
     Cr2 	= jsonModel["Cr2"];
     CBf     = jsonModel["CBf"];
     CBr     = jsonModel["CBr"];
-    Cl      = jsonModel["Cl"];
 
+    Cl      = jsonModel["Cl"];
     rho     = jsonModel["rho"];
     S       = jsonModel["S"];
     aero_split_front = jsonModel["aero_split_front"];

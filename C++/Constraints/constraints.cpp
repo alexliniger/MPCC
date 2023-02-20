@@ -52,27 +52,24 @@ OneDConstraint Constraints::getTrackConstraints(const ArcLengthSpline &track,con
     C_track_constraint(0,0) = tan_center(0);
     C_track_constraint(0,1) = tan_center(1);
     // Compute bounds
-    const double track_constraint_lower = tan_center(0)*pos_inner(0) + tan_center(1)*pos_inner(1);
-    const double track_constraint_upper = tan_center(0)*pos_outer(0) + tan_center(1)*pos_outer(1);
+    const double track_constraint_lower = tan_center(0)*pos_inner(0) + tan_center(1)*pos_inner(1) - C_track_constraint*stateToVector(x);
+    const double track_constraint_upper = tan_center(0)*pos_outer(0) + tan_center(1)*pos_outer(1) - C_track_constraint*stateToVector(x);
 
     return {C_track_constraint,track_constraint_lower,track_constraint_upper};
 }
 
 OneDConstraint Constraints::getTireConstraintRear(const State &x) const
 {
-        // compute linearized slip angle constraints
+    // compute linearized slip angle constraints
     // -Inf <= F_comb - F_max <= 0
-    State x_lin = x;
-    x_lin.vxNonZero1(param_.vx_zero);
-    const StateVector x_vec_lin = stateToVector(x_lin);
-    const std::vector<double> x_std_vec(x_vec_lin.data(),x_vec_lin.data() + x_vec_lin.size());
+    const StateVector x_vec = stateToVector(x);
+    const std::vector<double> x_std_vec(x_vec.data(),x_vec.data() + x_vec.size());
 
     // compute the jacobean of alpha_f
     const C_i_MPC C_tire_constraint_rear = Eigen::Map<C_i_MPC>((tire_con_rear_model_->Jacobian(x_std_vec)).data());
     // compute the bounds given the Tylor series expansion
-    // const StateVector x_vec = stateToVector(x);
     const double tire_constraint_rear_lower = -INF;
-    const double tire_constraint_rear_upper = -tire_con_rear_model_->ForwardZero(x_std_vec)[0];
+    const double tire_constraint_rear_upper = -tire_con_rear_model_->ForwardZero(x_std_vec)[0] - C_tire_constraint_rear*x_vec;
 
     return {C_tire_constraint_rear,tire_constraint_rear_lower,tire_constraint_rear_upper};
 }
@@ -82,17 +79,14 @@ OneDConstraint Constraints::getTireConstraintFront(const State &x) const
 {
     // compute linearized slip angle constraints
     // -Inf <= F_comb - F_max <= 0
-    State x_lin = x;
-    x_lin.vxNonZero1(param_.vx_zero);
-    const StateVector x_vec_lin = stateToVector(x_lin);
-    const std::vector<double> x_std_vec(x_vec_lin.data(),x_vec_lin.data() + x_vec_lin.size());
+    const StateVector x_vec = stateToVector(x);
+    const std::vector<double> x_std_vec(x_vec.data(),x_vec.data() + x_vec.size());
 
     // compute the jacobean of alpha_f
     const C_i_MPC C_tire_constraint_front = Eigen::Map<C_i_MPC>((tire_con_front_model_->Jacobian(x_std_vec)).data());
     // compute the bounds given the Tylor series expansion
-    // const StateVector x_vec = stateToVector(x);
     const double tire_constraint_front_lower = -INF;
-    const double tire_constraint_front_upper = -tire_con_front_model_->ForwardZero(x_std_vec)[0];
+    const double tire_constraint_front_upper = -tire_con_front_model_->ForwardZero(x_std_vec)[0] - C_tire_constraint_front*x_vec;
 
     return {C_tire_constraint_front,tire_constraint_front_lower,tire_constraint_front_upper};
 }

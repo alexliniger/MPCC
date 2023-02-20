@@ -38,17 +38,17 @@ StateVector Model::getF(const State &x,const Input &u) const
 
 LinModelMatrix Model::discretizeModel(const State &x, const Input &u,const State &x_next) const
 {
-    State x_lin = x;
-    x_lin.vxNonZero(param_.vx_zero);
-    std::vector<double> x_v_lin = stateInputToVector(x_lin,u);
-    Eigen::MatrixXd jac_vec = Eigen::Map<Eigen::Matrix<double,NX*(NX+NU+2),1>>((RK4_model_->Jacobian(x_v_lin)).data());
-    jac_vec.resize(NX+NU+2,NX);
+    // State x_lin = x;
+    // x_lin.vxNonZero(param_.vx_zero);
+    // std::vector<double> x_v_lin = stateInputToVector(x_lin,u);
+    std::vector<double> x_v = stateInputToVector(x,u);
+    Eigen::MatrixXd jac_vec = Eigen::Map<Eigen::Matrix<double,NX*(NX+NU),1>>((RK4_model_->Jacobian(x_v)).data());
+    jac_vec.resize(NX+NU,NX);
     Eigen::MatrixXd jac = jac_vec.transpose();
 
     const A_MPC A_d = jac.block<NX,NX>(0,0);
     const B_MPC B_d = jac.block<NX,NU>(0,NX);
 
-    std::vector<double> x_v = stateInputToVector(x,u);
     StateVector x_RK4 = Eigen::Map<Eigen::Matrix<double,NX,1>>((RK4_model_->ForwardZero(x_v)).data());
     const g_MPC g_d =  -stateToVector(x_next) + x_RK4;
     return {A_d,B_d,g_d};

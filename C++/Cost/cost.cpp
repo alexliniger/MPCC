@@ -201,10 +201,12 @@ CostMatrix Cost::getInputCost() const
     R_MPC R_input_cost = R_MPC::Zero();
     // cost of "real" inputs
     Q_input_cost(si_index.D,si_index.D) = cost_param_.r_D;
+    Q_input_cost(si_index.B,si_index.B) = cost_param_.r_B;
     Q_input_cost(si_index.delta,si_index.delta) = cost_param_.r_delta;
     Q_input_cost(si_index.vs,si_index.vs) = cost_param_.r_vs;
     // quadratic part
     R_input_cost(si_index.dD,si_index.dD) = cost_param_.r_dD;
+    R_input_cost(si_index.dB,si_index.dB) = cost_param_.r_dB;
     R_input_cost(si_index.dDelta,si_index.dDelta) = cost_param_.r_dDelta;
     R_input_cost(si_index.dVs,si_index.dVs) = cost_param_.r_dVs;
     // solver interface expects 0.5 u^T R u + r^T u
