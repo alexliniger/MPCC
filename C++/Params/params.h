@@ -32,7 +32,6 @@ class Param{
 public:
     double Cm1;
     double Cm2;
-    double Cm0;
     double Cr0;
     double Cr2;
     double CBf;

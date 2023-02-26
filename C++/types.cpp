@@ -61,7 +61,7 @@ State vectorToState(const StateVector &xk)
 Input vectorToInput(const InputVector &uk)
 {
     Input u;
-    u.dD     = uk(si_index.dB);
+    u.dD     = uk(si_index.dD);
     u.dB     = uk(si_index.dB);
     u.dDelta = uk(si_index.dDelta);
     u.dVs    = uk(si_index.dVs);

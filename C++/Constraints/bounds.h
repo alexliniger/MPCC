@@ -32,7 +32,7 @@ public:
 
     Bounds_u getBoundsLU(const Input &u) const;
     Bounds_u getBoundsUU(const Input &u) const;
-    
+
     Bounds_s getBoundsLS() const;
     Bounds_s getBoundsUS() const;
 

@@ -14,10 +14,6 @@
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-// #include "Tests/spline_test.h"
-// #include "Tests/model_integrator_test.h"
-// #include "Tests/constratins_test.h"
-// #include "Tests/cost_test.h"
 
 #include "MPC/mpc.h"
 #include "Model/integrator.h"
@@ -42,18 +38,6 @@ int main() {
                            go_to_path + std::string(jsonConfig["normalization_path"]),
                            go_to_path + std::string(jsonConfig["adcodegen_path"])};
 
-
-    // std::cout << testSpline() << std::endl;
-    // std::cout << testArcLengthSpline(json_paths) << std::endl;
-
-    // std::cout << testIntegrator(json_paths) << std::endl;
-    // std::cout << testLinModel(json_paths) << std::endl;
-
-    // std::cout << testAlphaConstraint(json_paths) << std::endl;
-    // std::cout << testTireForceConstraint(json_paths) << std::endl;
-    // std::cout << testTrackConstraint(json_paths) << std::endl;
-
-    // std::cout << testCost(json_paths) << std::endl;
     Integrator integrator = Integrator(jsonConfig["Ts"],json_paths);
     Plotting plotter = Plotting(jsonConfig["Ts"],json_paths);
 
@@ -64,12 +48,14 @@ int main() {
     MPC mpc(jsonConfig["n_sqp"],jsonConfig["n_reset"],jsonConfig["sqp_mixing"],jsonConfig["Ts"],json_paths);
     mpc.setTrack(track_xy.X,track_xy.Y);
     const double phi_0 = std::atan2(track_xy.Y(1) - track_xy.Y(0),track_xy.X(1) - track_xy.X(0));
-    State x0 = {track_xy.X(0),track_xy.Y(0),phi_0,jsonConfig["v0"],0,0,5,0,0,0,jsonConfig["v0"]};
+    State x0 = {track_xy.X(0),track_xy.Y(0),phi_0,jsonConfig["v0"],0,0,0,0.0,0,0,jsonConfig["v0"]};
     for(int i=0;i<jsonConfig["n_sim"];i++)
     {
         MPCReturn mpc_sol = mpc.runMPC(x0);
-        x0 = mpc_sol.mpc_horizon[1].xk;
-        // x0 = integrator.simTimeStep(x0,mpc_sol.u0,jsonConfig["Ts"]);
+        // Use the MPC prediction as sim step
+        // x0 = mpc_sol.mpc_horizon[1].xk;
+        // Use ODE integrator
+        x0 = integrator.simTimeStep(x0,mpc_sol.u0,jsonConfig["Ts"]);
         log.push_back(mpc_sol);
     }
     plotter.plotRun(log,track_xy);

@@ -25,7 +25,7 @@ Param::Param(std::string file){
     /////////////////////////////////////////////////////
     // Loading Model and Constraint Parameters //////////
     /////////////////////////////////////////////////////
-    std::cout << "model" << std::endl;
+    // std::cout << "model" << std::endl;
 
     std::ifstream iModel(file);
     json jsonModel;
@@ -33,7 +33,6 @@ Param::Param(std::string file){
     // Model Parameters
     Cm1 	= jsonModel["Cm1"];
     Cm2 	= jsonModel["Cm2"];
-    Cm0 	= jsonModel["Cm0"];
 
     Cr0 	= jsonModel["Cr0"];
     Cr2 	= jsonModel["Cr2"];
@@ -87,7 +86,7 @@ CostParam::CostParam(std::string file){
     /////////////////////////////////////////////////////
     // Loading Cost Parameters //////////////////////////
     /////////////////////////////////////////////////////
-    std::cout << "cost" << std::endl;
+    // std::cout << "cost" << std::endl;
 
     std::ifstream iCost(file);
     json jsonCost;
@@ -135,7 +134,7 @@ BoundsParam::BoundsParam(std::string file) {
     /////////////////////////////////////////////////////
     // Loading Cost Parameters //////////////////////////
     /////////////////////////////////////////////////////
-    std::cout << "bounds" << std::endl;
+    // std::cout << "bounds" << std::endl;
 
     std::ifstream iBounds(file);
     json jsonBounds;
@@ -185,7 +184,7 @@ NormalizationParam::NormalizationParam(std::string file)
     /////////////////////////////////////////////////////
     // Loading Normalization Parameters /////////////////
     /////////////////////////////////////////////////////
-    std::cout << "norm" << std::endl;
+    // std::cout << "norm" << std::endl;
 
     std::ifstream iNorm(file);
     json jsonNorm;
