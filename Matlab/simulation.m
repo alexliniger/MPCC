@@ -17,39 +17,52 @@ clc
 
 %% add spline library
 addpath('splines');
+addpath('spline2')
+addpath('parameters');
+addpath('tracks');
 %% Load Parameters
-CarModel = 'ORCA';
+%CarModel = 'ORCA';
 % CarModel = 'FullSize';
 
-MPC_vars = getMPC_vars(CarModel);
-ModelParams=getModelParams(MPC_vars.ModelNo);
-% choose optimization interface options: 'Yalmip','CVX','hpipm','quadprog'
-MPC_vars.interface = 'hpipm';
+mpc_vars = getMPC_vars();
+config=getMpcConfig();
+[tire,car,bounds,cost,normalization,mpc] = generateParameters();
 
+track_name_file = 'hairpins.mat'; %track name
+load(track_name_file);
+track.outer = cones_blue';
+track.outer = [track.outer, cones_blue(1,:)'];
+track.inner = cones_yellow';
+track.inner = [track.inner, cones_yellow(1,:)'];
+track.center = generateCenterLine(track.outer, track.inner);
 
-nx = ModelParams.nx;
-nu = ModelParams.nu;
-N = MPC_vars.N;
-Ts = MPC_vars.Ts;
+%MPC_vars.interface = 'hpipm';
+
+nx = config.nx;
+nu = config.nu;
+N = mpc_vars.N;
+Ts = mpc_vars.Ts;
 %% import an plot track
 % use normal ORCA Track
-load Tracks/track2.mat
+%load Tracks/track2.mat
 % use RCP track
 % load Tracks/trackMobil.mat
 % track2 = trackMobil;
 % shrink track by half of the car widht plus safety margin
 % TODO implement orientation depending shrinking in the MPC constraints
-safteyScaling = 1.5;
-[track,track2] = borderAdjustment(track2,ModelParams,safteyScaling);
+%safteyScaling = 1.5;
+%[track,track2] = borderAdjustment(track2,ModelParams,safteyScaling);
 
-trackWidth = norm(track.inner(:,1)-track.outer(:,1));
+% trackWidth = norm(track.inner(:,1)-track.outer(:,1));
+trackWidth = 3.0;
 % plot shrinked and not shrinked track 
 figure(1);
-plot(track.outer(1,:),track.outer(2,:),'r')
+plot(track.outer(1,:),track.outer(2,:),'b');
 hold on
-plot(track.inner(1,:),track.inner(2,:),'r')
-plot(track2.outer(1,:),track2.outer(2,:),'k')
-plot(track2.inner(1,:),track2.inner(2,:),'k')
+plot(track.inner(1,:),track.inner(2,:),'y');
+plot(track.center(1,:),track.center(2,:),'r')
+%plot(track2.outer(1,:),track2.outer(2,:),'k')
+%plot(track2.inner(1,:),track2.inner(2,:),'k')
 %% Simulation lenght and plotting
 simN = 500;
 %0=no plots, 1=plot predictions
@@ -60,26 +73,33 @@ QP_iter = 2;
 % there are two examples one with no other cars and one with 4 other cars
 % (inspired by the set up shown in the paper)
 % n_cars = 1; % no other car
-n_cars = 5; % 4 other cars
+n_cars = 1; % 4 other cars
 %% Fit spline to track
 % TODO spline function only works with regular spaced points.
 % Fix add function which given any center line and bound generates equlally
 % space tracks.
-[traj, borders] =splinify(track);
-tl = traj.ppy.breaks(end);
+
+trackSpline = ArcLengthSpline(mpc);
+trackSpline = trackSpline.gen2DSpline(track.center(1,:), track.center(2,:));
+
+splinedPath = trackSpline.getPath();
+plot(splinedPath.x(1,:), splinedPath.y(1,:));
+
+%[traj, borders] =splinify(track);
+%tl = traj.ppy.breaks(end);
 
 % store all data in one struct
-TrackMPC = struct('traj',traj,'borders',borders,'track_center',track.center,'tl',tl);
+%TrackMPC = struct('traj',traj,'borders',borders,'track_center',track.center,'tl',tl);
 %% Define starting position
 startIdx = 1; %point (in terms of track centerline array) allong the track 
 % where the car starts, on the center line, aligned with the track, driving
 % straight with vx0
 %since the used bicycle model is not well defined for slow velocities use vx0 > 0.5
-if CarModel == "ORCA"
+%if CarModel == "ORCA"
     vx0 = 1;
-elseif CarModel == "FullSize"
-    vx0 = 15;
-end
+    %elseif CarModel == "FullSize"
+%    vx0 = 15;
+%end
 
 % find theta that coresponds to the 10th point on the centerline
 [theta, ~] = findTheta([track.center(1,startIdx),track.center(2,startIdx)],track.center,traj.ppx.breaks,trackWidth,startIdx);

@@ -23,7 +23,7 @@ Yt=Tr(2,:);
 % Tr = track.center;
 % Xt = track.center(1,:);
 % Yt = track.center(2,:);
-[traj.ppx, traj.ppy err]=normalizedSplineInterp(Xt,Yt,1,'y');
+[traj.ppx, traj.ppy, err]=normalizedSplineInterp(Xt,Yt,1,'y');
 %traj.ppx = spline(1:length(Xt),Xt);
 
 %calculate derivatives of desired trajectory
