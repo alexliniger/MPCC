@@ -1,0 +1,17 @@
+{
+    "x": 1.0,
+    "y": 1.0,
+    "yaw": 1.0,
+    "vx": 1.0,
+    "vy": 1.0,
+    "r": 1.0,
+    "s": 1.0,
+    "throttle": 1.0,
+    "steeringAngle": 1.0,
+    "brakes": 1.0,
+    "vs": 1.0,
+    "dThrottle": 1.0,
+    "dSteeringAngle": 1.0,
+    "dBrakes": 1.0,
+    "dVs": 1.0
+}

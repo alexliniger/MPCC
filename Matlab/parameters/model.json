@@ -1,0 +1,16 @@
+{
+    "car_l": 2.0,
+    "car_w": 1.0,
+    
+    "R_in": 2.0,
+    "R_out": 2.0,
+    
+    "max_dist_proj": 10.0,
+    
+    "maxAlpha": 0.15,
+    
+    "initial_velocity": 0.0,
+    "s_trust_region": 30.0,
+    
+    "vx_zero": 3.0
+}
