@@ -1,35 +1,43 @@
 {
-  "xL": -3000.0,
-  "yL": -3000.0,
-  "phiL": -10.0,
-  "vxL": 0.0,
-  "vyL": -10.0,
-  "rL": -1.0,
-  "sL": -500.0,
-  "throttleL": 0.0,
-  "steeringAngleL": -1.0,
-  "brakesL": 0.0,
-  "vsL": 0.0,
+    "lowerStateBounds":{
+      "xL": -3000.0,
+      "yL": -3000.0,
+      "phiL": -10.0,
+      "vxL": 0.0,
+      "vyL": -10.0,
+      "rL": -1.0,
+      "sL": -500.0,
+      "throttleL": 0.0,
+      "steeringAngleL": -1.0,
+      "brakesL": 0.0,
+      "vsL": 0.0
+    },
 
-  "xU": 3000.0,
-  "yU": 3000.0,
-  "phiU": 10.0,
-  "vxU": 30.0,
-  "vyU": 10.0,
-  "rU": 2.0,
-  "sU": 2500.0,
-  "throttleU": 1.0,
-  "steeringAngleU": 1.0,
-  "brakesU": 1.0,
-  "vsU": 50.0,
+    "upperStateBounds":{
+      "xU": 3000.0,
+      "yU": 3000.0,
+      "phiU": 10.0,
+      "vxU": 30.0,
+      "vyU": 10.0,
+      "rU": 2.0,
+      "sU": 2500.0,
+      "throttleU": 1.0,
+      "steeringAngleU": 1.0,
+      "brakesU": 1.0,
+      "vsU": 50.0
+    },
 
-  "dThrottleL": -1.0,
-  "dSteeringAngleL": -1.0,
-  "dBrakesL": -1.0,
-  "dVsL": -50.0,
+    "lowerInputBounds":{
+      "dThrottleL": -1.0,
+      "dSteeringAngleL": -1.0,
+      "dBrakesL": -1.0,
+      "dVsL": -50.0
+    },
 
-  "dThrottleU": 1.0,
-  "dSteeringAngleU": 1.0,
-  "dBrakesU": 1.0,
-  "dVsU": 50.0
+    "upperInputBounds":{
+      "dThrottleU": 1.0,
+      "dSteeringAngleU": 1.0,
+      "dBrakesU": 1.0,
+      "dVsU": 50.0
+    }
 }
