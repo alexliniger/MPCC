@@ -8,6 +8,7 @@ include_directories("..")
 #include_directories(.)
 include_directories(../External/Eigen)
 include_directories(../External/Json/include)
+include_directories(../External/lib/include)
 
 add_executable(ADCodeGen
         ad_dynamics.cpp

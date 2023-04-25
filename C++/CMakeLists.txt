@@ -10,6 +10,7 @@ include_directories(External/hpipm/lib/include)
 include_directories(External/matplotlib)
 include_directories(External/Eigen)
 include_directories(External/Json/include)
+include_directories(External/lib/include)
 
 add_executable(MPCC
         main.cpp
@@ -40,4 +41,4 @@ find_package(Python3 COMPONENTS Interpreter NumPy Development)
 target_include_directories(MPCC PRIVATE ${Python3_INCLUDE_DIRS})
 target_link_libraries(MPCC ${Python3_LIBRARIES})
 
-target_link_libraries(MPCC ${CMAKE_SOURCE_DIR}/External/hpipm/lib/lib/libhpipm.a ${CMAKE_SOURCE_DIR}/External/blasfeo/lib/lib/libblasfeo.a m)
+target_link_libraries(MPCC ${CMAKE_SOURCE_DIR}/External/hpipm/lib/lib/libhpipm.a ${CMAKE_SOURCE_DIR}/External/blasfeo/lib/lib/libblasfeo.a m dl)
