@@ -1,0 +1,15 @@
+[submodule "C++/External/blasfeo"]
+	path = C++/External/blasfeo
+	url = https://github.com/giaf/blasfeo.git
+[submodule "C++/External/hpipm"]
+	path = C++/External/hpipm
+	url = https://github.com/giaf/hpipm.git
+[submodule "External/matplotlib"]
+	path = C++/External/matplotlib
+	url = https://github.com/lava/matplotlib-cpp.git
+[submodule "C++/External/Eigen"]
+	path = C++/External/Eigen
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "C++/External/Json"]
+	path = C++/External/Json
+	url = https://github.com/nlohmann/json.git
