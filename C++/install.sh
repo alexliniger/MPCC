@@ -48,17 +48,17 @@ git clone "$repository_cppadcg" "$localFolder_cppadcg"
 
 cd External/blasfeo
 mkdir -p build
-mkdir -p lib
+mkdir -p ../lib
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$(realpath ../lib)
+cmake .. -DCMAKE_INSTALL_PREFIX=$(realpath ../../lib)
 make
 make install
 
 cd ../../hpipm
 mkdir -p build
-mkdir -p lib
+mkdir -p ../lib
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$(realpath ../lib) -DBLASFEO_PATH=$(realpath ../../blasfeo/lib)
+cmake .. -DCMAKE_INSTALL_PREFIX=$(realpath ../../lib) -DBLASFEO_PATH=$(realpath ../../lib)
 make
 make install
 

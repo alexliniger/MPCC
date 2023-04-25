@@ -44,7 +44,7 @@ To install all the dependencies run
 ```
 ./install.sh
 ```
-this clones `blasfeo`, `hpipm`, `matplotlip-cpp`, `nlohmann/json`, and `eigen`, from their git repo, and safes them in a folder External. Additionally, it installs `blasfeo` and `hpipm` in the same External folder, thus no admin rights are necessary.
+this clones `blasfeo`, `hpipm`, `matplotlip-cpp`, `nlohmann/json`, `eigen`, `cppad`, and `cppad-codegen` from their git repo, and safes them in a folder External. Additionally, it installs `blasfeo`, `hpipm`, `cppad`, and `cppad-codegen` in the same External folder, thus no admin rights are necessary. You may need to install `llvm` and `clang` with admin rights in order for `cppad-codegen` to build properly.
 
 Note that `matplotlib-cpp` does also require `Python-2.7` and `matplotlib`, for more details see (https://github.com/lava/matplotlib-cpp).
 

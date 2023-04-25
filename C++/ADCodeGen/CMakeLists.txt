@@ -17,4 +17,5 @@ add_executable(ADCodeGen
         ../Params/params.cpp
         main.cpp)
 
+target_link_libraries(ADCodeGen ${CMAKE_SOURCE_DIR}/../External/lib/lib/libcppad_lib.so)
 #target_link_libraries(ADCodeGen cppad_cg_RK4.so m)
