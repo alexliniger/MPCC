@@ -40,11 +40,11 @@ Currently, only one track and car model is implemented. However, adapting the pa
 
 ## Installation 
 
-To install all the dependencies run
+To download dependencies, either clone with the `--recurse-submodules` flag, or run the following after cloning:
 ```
-./install.sh
+git submodule update --init
 ```
-this clones `blasfeo`, `hpipm`, `matplotlip-cpp`, `nlohmann/json`, and `eigen`, from their git repo, and safes them in a folder External. Additionally, it installs `blasfeo` and `hpipm` in the same External folder, thus no admin rights are necessary.
+this clones `blasfeo`, `hpipm`, `matplotlip-cpp`, `nlohmann/json`, and `eigen`, from their git repo, and safes them in a folder External. `blasfeo` and `hpipm` are built by cmake while you are building this repository, with no admin permissions needed.
 
 Note that `matplotlib-cpp` does also require `Python-2.7` and `matplotlib`, for more details see (https://github.com/lava/matplotlib-cpp).
 
