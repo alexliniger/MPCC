@@ -29,7 +29,7 @@ git clone "$repository_hpipm" "$localFolder_hpipm"
 repository_matplotlib="https://github.com/lava/matplotlib-cpp.git"
 localFolder_matplotlib="External/matplotlib"
 git clone "$repository_matplotlib" "$localFolder_matplotlib"
-## clone eigne
+## clone eigen
 repository_eigen="https://gitlab.com/libeigen/eigen.git"
 localFolder_eigen="External/Eigen"
 git clone "$repository_eigen" "$localFolder_eigen"
@@ -37,20 +37,43 @@ git clone "$repository_eigen" "$localFolder_eigen"
 repository_json="https://github.com/nlohmann/json.git"
 localFolder_json="External/Json"
 git clone "$repository_json" "$localFolder_json"
-
+## clone cppad
+repository_cppad="https://github.com/coin-or/CppAD.git"
+localFolder_cppad="External/CppAD"
+git clone "$repository_cppad" "$localFolder_cppad"
+## clone cppad codegen
+repository_cppadcg="https://github.com/joaoleal/CppADCodeGen.git"
+localFolder_cppadcg="External/CppADCodeGen"
+git clone "$repository_cppadcg" "$localFolder_cppadcg"
 
 cd External/blasfeo
 mkdir -p build
-mkdir -p lib
+mkdir -p ../lib
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$(realpath ../lib)
+cmake .. -DCMAKE_INSTALL_PREFIX=$(realpath ../../lib)
 make
 make install
 
 cd ../../hpipm
 mkdir -p build
-mkdir -p lib
+mkdir -p ../lib
 cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$(realpath ../lib) -DBLASFEO_PATH=$(realpath ../../blasfeo/lib)
+cmake .. -DCMAKE_INSTALL_PREFIX=$(realpath ../../lib) -DBLASFEO_PATH=$(realpath ../../lib)
+make
+make install
+
+cd ../../CppAD
+mkdir -p build
+mkdir -p ../lib
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=$(realpath ../../lib)
+make
+make install
+
+cd ../../CppADCodeGen
+mkdir -p build
+mkdir -p ../lib
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=$(realpath ../../lib)
 make
 make install

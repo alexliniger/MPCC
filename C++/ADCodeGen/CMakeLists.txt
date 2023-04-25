@@ -8,6 +8,7 @@ include_directories("..")
 #include_directories(.)
 include_directories(../External/Eigen)
 include_directories(../External/Json/include)
+include_directories(../External/lib/include)
 
 add_executable(ADCodeGen
         ad_dynamics.cpp
@@ -16,4 +17,5 @@ add_executable(ADCodeGen
         ../Params/params.cpp
         main.cpp)
 
+target_link_libraries(ADCodeGen ${CMAKE_SOURCE_DIR}/../External/lib/lib/libcppad_lib.so)
 #target_link_libraries(ADCodeGen cppad_cg_RK4.so m)
