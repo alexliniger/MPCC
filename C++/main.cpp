@@ -59,7 +59,7 @@ int main() {
         log.push_back(mpc_sol);
     }
     plotter.plotRun(log,track_xy);
-    plotter.plotSim(log,track_xy);
+    // plotter.plotSim(log,track_xy);
 
     double mean_time = 0.0;
     double max_time = 0.0;

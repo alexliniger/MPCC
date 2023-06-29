@@ -30,7 +30,7 @@ int main(void) {
     std::unique_ptr<CppAD::cg::GenericModel<double>> model;
     model = myLib->model("RK4");
 
-    Eigen::Vector<double,15> x;
+    Eigen::Matrix<double,15,1> x;
     x.setZero();
     x(3) = 10.0;
     std::vector<double> xv(x.data(), x.data() + x.size());
@@ -50,7 +50,7 @@ int main(void) {
     StateVector f = Eigen::Map<StateVector>((model_cont_dyn->ForwardZero(xv)).data());
     std::cout << f << std::endl;
 
-    Eigen::Vector<double,NX> s;
+    Eigen::Matrix<double,NX,1> s;
     s.setZero();
     s(3) = 10.0;
     s(5) = 1.0;

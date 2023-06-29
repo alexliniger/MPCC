@@ -6,7 +6,10 @@ set(CMAKE_CXX_STANDARD_LIBRARIES -ldl)
 
 include_directories("..")
 #include_directories(.)
-include_directories(../External/Eigen)
+
+# Find the globally installed Eigen library
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(../External/Json/include)
 
 add_executable(ADCodeGen
@@ -16,4 +19,5 @@ add_executable(ADCodeGen
         ../Params/params.cpp
         main.cpp)
 
+target_link_libraries(ADCodeGen /usr/local/lib/libcppad_lib.so)
 #target_link_libraries(ADCodeGen cppad_cg_RK4.so m)

@@ -47,7 +47,7 @@ void MPC::setMPCProblem()
 {
     for(int i=0;i<=N;i++)
     {
-        setStage(initial_guess_[i].xk,initial_guess_[i].uk,initial_guess_[i+1].xk,i);
+        setStage(initial_guess_[i].xk,initial_guess_[i].uk,initial_guess_[std::min(i+1, N)].xk,i);
     }
 }
 

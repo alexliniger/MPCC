@@ -98,6 +98,7 @@ void Plotting::plotRun(const std::list<MPCReturn> &log, const TrackPos &track_xy
     plt::axis("equal");
     plt::xlabel("X [m]");
     plt::ylabel("Y [m]");
+    plt::save("XY_traj.pdf");
     plt::figure();
     // plt::subplot(3,2,1);
     plt::plot(plot_x);

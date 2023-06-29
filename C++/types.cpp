@@ -104,7 +104,7 @@ std::vector<double> stateInputToVector(const State x,const Input u)
     StateVector xv = stateToVector(x);
     InputVector uv = inputToVector(u);
 
-    Eigen::Vector<double,NX+NU> z;
+    Eigen::Matrix<double,NX+NU,1> z;
     z << xv,uv;
     std::vector<double> zv(z.data(), z.data() + z.size());
 
