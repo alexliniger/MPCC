@@ -25,10 +25,11 @@ namespace mpcc{
 class Bounds {
 public:
     Bounds();
-    Bounds(BoundsParam bounds_param);
+    Bounds(BoundsParam bounds_param, const PathToJson &path);
 
     Bounds_x getBoundsLX(const State &x) const;
     Bounds_x getBoundsUX(const State &x) const;
+    Bounds_x addVeloUX(const State &x, const Bounds_x &upper_bounds, const double max_velo) const;
 
     Bounds_u getBoundsLU(const Input &u) const;
     Bounds_u getBoundsUU(const Input &u) const;
@@ -46,6 +47,8 @@ private:
 
     Bounds_s u_bounds_s_;
     Bounds_s l_bounds_s_;
+
+    Param param_;
 };
 }
 #endif //MPCC_BOUNDS_H

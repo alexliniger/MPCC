@@ -39,20 +39,46 @@ struct TrackPos {
     const Eigen::VectorXd Y_outer;
 };
 
+ struct TrackFull {
+    const Eigen::VectorXd X;
+    const Eigen::VectorXd Y;
+
+    const Eigen::VectorXd X_inner;
+    const Eigen::VectorXd Y_inner;
+
+    const Eigen::VectorXd X_outer;
+    const Eigen::VectorXd Y_outer;
+
+    const Eigen::VectorXd n_left;
+    const Eigen::VectorXd n_right;
+
+    const Eigen::VectorXd s;
+    const Eigen::VectorXd v;
+ };
+
+
 class Track {
 public:
     Track(std::string file);
-    TrackPos getTrack();
+    TrackPos getTrack() const;
+    TrackFull getTrackFull() const;
 
 private:
-    Eigen::VectorXd X;
-    Eigen::VectorXd Y;
+    Eigen::VectorXd X_;
+    Eigen::VectorXd Y_;
 
-    Eigen::VectorXd X_inner;
-    Eigen::VectorXd Y_inner;
+    Eigen::VectorXd X_inner_;
+    Eigen::VectorXd Y_inner_;
 
-    Eigen::VectorXd X_outer;
-    Eigen::VectorXd Y_outer;
+    Eigen::VectorXd X_outer_;
+    Eigen::VectorXd Y_outer_;
+
+    Eigen::VectorXd n_left_;
+    Eigen::VectorXd n_right_;
+
+    Eigen::VectorXd s_;
+
+    Eigen::VectorXd v_;
 };
 };
 

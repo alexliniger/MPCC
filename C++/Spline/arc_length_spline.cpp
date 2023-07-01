@@ -264,7 +264,7 @@ double ArcLengthSpline::getLength() const
     return path_data_.s(path_data_.n_points-1);
 }
 
-double ArcLengthSpline::porjectOnSpline(const State &x) const
+double ArcLengthSpline::projectOnSpline(const State &x) const
 {
     Eigen::Vector2d pos;
     pos(0) = x.X;

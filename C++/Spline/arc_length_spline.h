@@ -44,7 +44,7 @@ public:
     Eigen::Vector2d getDerivative(double) const;
     Eigen::Vector2d getSecondDerivative(double) const;
     double getLength() const;
-    double porjectOnSpline(const State &x) const;
+    double projectOnSpline(const State &x) const;
 
     ArcLengthSpline();
     ArcLengthSpline(const PathToJson &path);

@@ -27,7 +27,7 @@ param_(Param(path.param_path))
 {
 }
 
-TrackPoint Cost::getRefPoint(const ArcLengthSpline &track,const State &x) const
+TrackPoint Cost::getRefPoint(const BoostSplines &track,const State &x) const
 {
     // compute all the geometry information of the track at a given arc length
     const double s = x.s;
@@ -58,7 +58,7 @@ TrackPoint Cost::getRefPoint(const ArcLengthSpline &track,const State &x) const
     return {x_ref,y_ref,dx_ref,dy_ref,theta_ref,dtheta_ref};
 }
 
-ErrorInfo Cost::getErrorInfo(const ArcLengthSpline &track,const State &x) const
+ErrorInfo Cost::getErrorInfo(const BoostSplines &track,const State &x) const
 {
     ErrorInfo error_info;
     // compute error between reference and X-Y position of the car
@@ -137,7 +137,7 @@ CostMatrix Cost::getBetaKinCost(const State &x) const
     return {Q_beta,R_MPC::Zero(),S_MPC::Zero(),q_beta,r_MPC::Zero(),Z_MPC::Zero(),z_MPC::Zero()};
 }
 
-CostMatrix Cost::getContouringCost(const ArcLengthSpline &track, const State &x,const int k) const
+CostMatrix Cost::getContouringCost(const BoostSplines &track, const State &x,const int k) const
 {
     // compute state cost, formed by contouring error cost + cost on "real" inputs
     // compute reference information
@@ -176,7 +176,7 @@ CostMatrix Cost::getContouringCost(const ArcLengthSpline &track, const State &x,
     return {Q_contouring_cost,R_MPC::Zero(),S_MPC::Zero(),q_contouring_cost,r_MPC::Zero(),Z_MPC::Zero(),z_MPC::Zero()};
 }
 
-CostMatrix Cost::getHeadingCost(const ArcLengthSpline &track, const State &x,int k) const
+CostMatrix Cost::getHeadingCost(const BoostSplines &track, const State &x,int k) const
 {
     // get heading of the track
     const Eigen::Vector2d dpos_ref = track.getDerivative(x.s);
@@ -233,7 +233,7 @@ CostMatrix Cost::getSoftConstraintCost() const
     return {Q_MPC::Zero(),R_MPC::Zero(),S_MPC::Zero(),q_MPC::Zero(),r_MPC::Zero(),Z_cost,z_cost};
 }
 
-CostMatrix Cost::getCost(const ArcLengthSpline &track, const State &x, const Input &u,const int k) const
+CostMatrix Cost::getCost(const BoostSplines &track, const State &x, const Input &u,const int k) const
 {
     // generate quadratic cost function
     const CostMatrix contouring_cost = getContouringCost(track,x,k);

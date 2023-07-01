@@ -20,6 +20,7 @@
 #include "config.h"
 #include "types.h"
 #include "Spline/arc_length_spline.h"
+#include "Spline/boost_splines.h"
 
 namespace mpcc{
 struct CostMatrix{
@@ -48,17 +49,17 @@ struct ErrorInfo{
 
 class Cost {
 public:
-    CostMatrix getCost(const ArcLengthSpline &track, const State &x, const Input &u,int k) const;
+    CostMatrix getCost(const BoostSplines &track, const State &x, const Input &u,int k) const;
 
     Cost(const PathToJson &path);
     Cost();
 
 private:
-    TrackPoint getRefPoint(const ArcLengthSpline &track,const State &x) const;
-    ErrorInfo  getErrorInfo(const ArcLengthSpline &track,const State &x) const;
+    TrackPoint getRefPoint(const BoostSplines &track,const State &x) const;
+    ErrorInfo  getErrorInfo(const BoostSplines &track,const State &x) const;
 
-    CostMatrix getContouringCost(const ArcLengthSpline &track, const State &x,int k) const;
-    CostMatrix getHeadingCost(const ArcLengthSpline &track, const State &x,int k) const;
+    CostMatrix getContouringCost(const BoostSplines &track, const State &x,int k) const;
+    CostMatrix getHeadingCost(const BoostSplines &track, const State &x,int k) const;
     CostMatrix getInputCost() const;
     CostMatrix getBetaCost(const State &x) const;
     CostMatrix getBetaKinCost(const State &x) const;

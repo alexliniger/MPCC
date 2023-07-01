@@ -19,6 +19,7 @@
 #include "Model/integrator.h"
 #include "Params/track.h"
 #include "Plotting/plotting.h"
+#include "Spline/boost_splines.h"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -43,10 +44,11 @@ int main() {
 
     Track track = Track(json_paths.track_path);
     TrackPos track_xy = track.getTrack();
+    TrackFull track_full = track.getTrackFull();
 
     std::list<MPCReturn> log;
     MPC mpc(jsonConfig["n_sqp"],jsonConfig["n_reset"],jsonConfig["sqp_mixing"],jsonConfig["Ts"],json_paths);
-    mpc.setTrack(track_xy.X,track_xy.Y);
+    mpc.setTrack(track_full);
     const double phi_0 = std::atan2(track_xy.Y(1) - track_xy.Y(0),track_xy.X(1) - track_xy.X(0));
     State x0 = {track_xy.X(0),track_xy.Y(0),phi_0,jsonConfig["v0"],0,0,0,0.0,0,0,jsonConfig["v0"]};
     for(int i=0;i<jsonConfig["n_sim"];i++)

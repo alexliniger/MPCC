@@ -31,7 +31,7 @@ param_(Param(path.param_path))
     tire_con_rear_model_ = tire_con_rear_lib_->model("TireConRear");
 }
 
-OneDConstraint Constraints::getTrackConstraints(const ArcLengthSpline &track,const State &x) const
+OneDConstraint Constraints::getTrackConstraints(const BoostSplines &track,const State &x) const
 {
     // given arc length s and the track -> compute linearized track constraints
     const double s = x.s;
@@ -43,9 +43,12 @@ OneDConstraint Constraints::getTrackConstraints(const ArcLengthSpline &track,con
     const Eigen::Vector2d tan_center = {-d_center(1),d_center(0)};
 
     // inner and outer track boundary given left and right width of track
-    // TODO make R_out and R_in dependent on s
-    const Eigen::Vector2d pos_outer = pos_center + param_.r_out*tan_center;
-    const Eigen::Vector2d pos_inner = pos_center - param_.r_in*tan_center;
+    double n_left = track.getNLeft(s);
+    double n_right = track.getNRight(s);
+    // double corner_dist = param_.car_w * std::cos(x.mu) + param_.car_l * std::sin(std::fabs(x.mu));
+    
+    const Eigen::Vector2d pos_outer = pos_center + n_left*tan_center;
+    const Eigen::Vector2d pos_inner = pos_center + n_right*tan_center;
 
     // Define track Jacobian as Perpendicular vector
     C_i_MPC C_track_constraint = C_i_MPC::Zero();
@@ -91,7 +94,7 @@ OneDConstraint Constraints::getTireConstraintFront(const State &x) const
     return {C_tire_constraint_front,tire_constraint_front_lower,tire_constraint_front_upper};
 }
 
-ConstrainsMatrix Constraints::getConstraints(const ArcLengthSpline &track,const State &x,const Input &u) const
+ConstrainsMatrix Constraints::getConstraints(const BoostSplines &track,const State &x,const Input &u) const
 {
     // compute all the polytopic state constraints
     // compute the three constraints

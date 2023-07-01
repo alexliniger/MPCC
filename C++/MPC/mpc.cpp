@@ -29,12 +29,12 @@ valid_initial_guess_(false),
 solver_interface_(new HpipmInterface()),
 param_(Param(path.param_path)),
 normalization_param_(NormalizationParam(path.normalization_path)),
-bounds_(BoundsParam(path.bounds_path)),
+bounds_(BoundsParam(path.bounds_path), path),
 constraints_(Constraints(Ts,path)),
 cost_(Cost(path)),
 integrator_(Integrator(Ts,path)),
 model_(Model(Ts,path)),
-track_(ArcLengthSpline(path))
+track_(BoostSplines(path))
 {
     n_sqp_ = n_sqp;
     sqp_mixing_ = sqp_mixing;
@@ -77,16 +77,20 @@ void MPC::setStage(const State &xk, const Input &uk, const State &xk1, const int
     stages_[time_step].constrains_mat = normalizeCon(constraints_.getConstraints(track_,xk_nz,uk));
 
     stages_[time_step].l_bounds_x = normalization_param_.T_x_inv*bounds_.getBoundsLX(xk_nz);
-    stages_[time_step].u_bounds_x = normalization_param_.T_x_inv*bounds_.getBoundsUX(xk_nz);
+    if(time_step == N)
+    {
+        double terminal_v_constraint = track_.getVelocity(xk_nz.s);
+        stages_[time_step].u_bounds_x = normalization_param_.T_x_inv*
+            (bounds_.addVeloUX(xk_nz, bounds_.getBoundsUX(xk_nz), terminal_v_constraint));
+    }
+    else
+    {
+        stages_[time_step].u_bounds_x = normalization_param_.T_x_inv*bounds_.getBoundsUX(xk_nz);
+    }
     stages_[time_step].l_bounds_u = normalization_param_.T_u_inv*bounds_.getBoundsLU(uk);
     stages_[time_step].u_bounds_u = normalization_param_.T_u_inv*bounds_.getBoundsUU(uk);
     stages_[time_step].l_bounds_s = normalization_param_.T_s_inv*bounds_.getBoundsLS();
     stages_[time_step].u_bounds_s = normalization_param_.T_s_inv*bounds_.getBoundsUS();
-
-    stages_[time_step].l_bounds_x(si_index.s) = normalization_param_.T_x_inv(si_index.s,si_index.s)*
-                                                (-param_.s_trust_region);//*initial_guess_[time_step].xk.vs;
-    stages_[time_step].u_bounds_x(si_index.s) = normalization_param_.T_x_inv(si_index.s,si_index.s)*
-                                                (param_.s_trust_region);//*initial_guess_[time_step].xk.vs;
 
 }
 
@@ -222,7 +226,7 @@ MPCReturn MPC::runMPC(State &x0)
 {
     auto t1 = std::chrono::high_resolution_clock::now();
     int solver_status = -1;
-    x0.s = track_.porjectOnSpline(x0);
+    x0.s = track_.projectOnSpline(x0);
     x0.unwrap(track_.getLength());
     if(valid_initial_guess_)
         updateInitialGuess(x0);
@@ -260,8 +264,11 @@ MPCReturn MPC::runMPC(State &x0)
     return {initial_guess_[0].uk,initial_guess_,time_nmpc};
 }
 
-void MPC::setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y){
-    track_.gen2DSpline(X,Y);
+// void MPC::setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y){
+//     track_.gen2DSpline(X,Y);
+// }
+void MPC::setTrack(const TrackFull &track){
+        track_.genSplines(track);
 }
 
 

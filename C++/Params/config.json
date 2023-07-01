@@ -3,14 +3,14 @@
   "n_sqp": 2,
   "n_reset": 2,
   "sqp_mixing": 0.9,
-  "n_sim": 400,
+  "n_sim": 2000,
   "Ts": 0.05,
   "v0": 10.0,
   
   "model_path": "Params/model.json",
   "cost_path": "Params/cost.json",
   "bounds_path": "Params/bounds.json",
-  "track_path": "Params/track.json",
+  "track_path": "Params/track_processed.json",
   "normalization_path": "Params/normalization.json",
   "adcodegen_path": "ADCodeGen/build"
 }

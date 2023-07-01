@@ -3,14 +3,14 @@ project(MPCC)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_LIBRARIES -ldl)
-set(CMAKE_CXX_FLAGS "-O2")
+set(CMAKE_CXX_FLAGS "-O0")
 
 include_directories(.)
 include_directories(/opt/blasfeo/include)
 include_directories(/app/hpipm/include)
+include_directories(External)
+include_directories(External/Eigen)
 include_directories(External/matplotlib)
-find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(External/Json/include)
 
 find_package(Python3 COMPONENTS Interpreter NumPy Development)
@@ -23,6 +23,7 @@ add_executable(MPCC
         Params/params.cpp
         Spline/cubic_spline.cpp
         Spline/arc_length_spline.cpp
+        Spline/boost_splines.cpp
         Interfaces/hpipm_interface.cpp
         Interfaces/solver_interface.cpp
         Constraints/constraints.cpp

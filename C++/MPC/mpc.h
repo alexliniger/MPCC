@@ -20,7 +20,8 @@
 #include "config.h"
 #include "types.h"
 #include "Params/params.h"
-#include "Spline/arc_length_spline.h"
+// #include "Spline/arc_length_spline.h"
+#include "Spline/boost_splines.h"
 #include "Model/model.h"
 #include "Model/integrator.h"
 #include "Cost/cost.h"
@@ -76,7 +77,8 @@ class MPC {
 public:
     MPCReturn runMPC(State &x0);
 
-    void setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y);
+    // void setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y);
+    void setTrack(const TrackFull &track);
 
     MPC();
     MPC(int n_sqp, int n_reset, double sqp_mixing, double Ts,const PathToJson &path);
@@ -119,7 +121,7 @@ private:
     Integrator integrator_;
     Cost cost_;
     Constraints constraints_;
-    ArcLengthSpline track_;
+    BoostSplines track_;
 
     Bounds bounds_;
     NormalizationParam normalization_param_;

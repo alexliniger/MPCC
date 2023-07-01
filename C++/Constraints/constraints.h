@@ -18,7 +18,7 @@
 #define MPCC_CONSTRAINTS_H
 
 #include "config.h"
-#include "Spline/arc_length_spline.h"
+#include "Spline/boost_splines.h"
 #include "Model/model.h"
 #include <cppad/cg.hpp>
 namespace mpcc{
@@ -38,7 +38,7 @@ struct OneDConstraint {
 
 class Constraints {
 public:
-    ConstrainsMatrix getConstraints(const ArcLengthSpline &track,const State &x,const Input &u) const;
+    ConstrainsMatrix getConstraints(const BoostSplines &track,const State &x,const Input &u) const;
 
     Constraints();
     Constraints(double Ts,const PathToJson &path);
@@ -46,7 +46,7 @@ public:
     std::unique_ptr<CppAD::cg::GenericModel<double>> tire_con_front_model_;
     std::unique_ptr<CppAD::cg::GenericModel<double>> tire_con_rear_model_;
 private:
-    OneDConstraint getTrackConstraints(const ArcLengthSpline &track,const State &x) const;
+    OneDConstraint getTrackConstraints(const BoostSplines &track,const State &x) const;
 
     OneDConstraint getTireConstraintRear(const State &x) const;
 

@@ -21,7 +21,8 @@ Bounds::Bounds()
     std::cout << "default constructor, not everything is initialized properly" << std::endl;
 }
 
-Bounds::Bounds(BoundsParam bounds_param) 
+Bounds::Bounds(BoundsParam bounds_param, const PathToJson &path)
+:param_(Param(path.param_path))
 {
     l_bounds_x_(si_index.X) = bounds_param.lower_state_bounds.X_l;
     l_bounds_x_(si_index.Y) = bounds_param.lower_state_bounds.Y_l;
@@ -65,12 +66,26 @@ Bounds::Bounds(BoundsParam bounds_param)
 
 Bounds_x Bounds::getBoundsLX(const State &x) const
 {
-    return  l_bounds_x_-stateToVector(x);
+    Bounds_x lower_bounds = l_bounds_x_;
+    double trust_region_lower = x.s - param_.s_trust_region;
+    lower_bounds(si_index.s) = trust_region_lower;
+
+    return lower_bounds-stateToVector(x);
 }
 
-Bounds_x Bounds::getBoundsUX(const State &x) const
+Bounds_x Bounds::getBoundsUX(const State &x) const {
+    Bounds_x upper_bounds = u_bounds_x_;
+    double trust_region_upper = x.s + param_.s_trust_region;
+    upper_bounds(si_index.s) =trust_region_upper;
+
+    return upper_bounds-stateToVector(x);
+}
+
+Bounds_x Bounds::addVeloUX(const State &x, const Bounds_x &upper_bounds, const double max_velo) const
 {
-    return  u_bounds_x_-stateToVector(x);
+    Bounds_x mod_upper_bounds = upper_bounds;
+    mod_upper_bounds(si_index.vx) = max_velo - x.vx;
+    return mod_upper_bounds;
 }
 
 Bounds_u Bounds::getBoundsLU(const Input &u) const
