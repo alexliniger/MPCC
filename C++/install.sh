@@ -17,7 +17,6 @@
 ## Install dependencies
 set -e
 
-
 ## clone matplotlib-cpp
 repository_matplotlib="https://github.com/lava/matplotlib-cpp.git"
 localFolder_matplotlib="External/matplotlib"
@@ -28,4 +27,8 @@ repository_json="https://github.com/nlohmann/json.git"
 localFolder_json="External/Json"
 git clone --depth 1 "$repository_json" "$localFolder_json"
 
+## clone eigne
+repository_eigen="https://gitlab.com/libeigen/eigen.git"
+localFolder_eigen="External/Eigen"
+git clone --depth 1 "$repository_eigen" "$localFolder_eigen"
 
