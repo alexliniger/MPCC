@@ -64,9 +64,6 @@ Param::Param(std::string file) {
   car_w = jsonModel["car_w"];
 
   g = jsonModel["g"];
-  // Constraint Parameters
-  r_in = jsonModel["R_in"];
-  r_out = jsonModel["R_out"];
 
   max_dist_proj = jsonModel["max_dist_proj"];
 
@@ -118,6 +115,7 @@ CostParam::CostParam(std::string file) {
 
   q_c_N_mult = jsonCost["qCNmult"];
   q_r_N_mult = jsonCost["qRNmult"];
+  q_mu_N_mult = jsonCost["qMuNmult"];
 
   sc_quad_track = jsonCost["sc_quad_track"];
   sc_quad_tire_r = jsonCost["sc_quad_tire_r"];

@@ -23,6 +23,7 @@
 
   "qCNmult": 1000.0,
   "qRNmult": 1.0,
+  "qMuNmult": 10.0,
 
   "sc_quad_track": 1000.0,
   "sc_quad_tire_f": 100.0,

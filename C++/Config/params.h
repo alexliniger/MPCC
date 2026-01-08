@@ -60,9 +60,6 @@ class Param {
 
   double g;
 
-  double r_in;
-  double r_out;
-
   double max_dist_proj;
 
   double e_long;
@@ -86,6 +83,7 @@ class CostParam {
   double q_vs;
 
   double q_mu;
+  double q_mu_N_mult;
 
   double q_r;
 

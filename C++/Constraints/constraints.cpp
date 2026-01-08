@@ -35,35 +35,59 @@ Constraints::Constraints(double Ts, const PathToJson &path)
 
 OneDConstraint Constraints::getTrackConstraints(const BoostSplines &track,
                                                 const State &x) const {
-  // given arc length s and the track -> compute linearized track constraints
+  // Given arc length s and the track -> compute linearized track constraints
   const double s = x.s;
 
-  // X-Y point of the center line
+  // X-Y point of the center line and its derivative
   const Eigen::Vector2d pos_center = track.getPostion(s);
   const Eigen::Vector2d d_center = track.getDerivative(s);
-  // Tangent of center line at s
-  const Eigen::Vector2d tan_center = {-d_center(1), d_center(0)};
 
-  // inner and outer track boundary given left and right width of track
-  double n_left = track.getNLeft(s);
-  double n_right = track.getNRight(s);
-  // double corner_dist = param_.car_w * std::cos(x.mu) + param_.car_l *
-  // std::sin(std::fabs(x.mu));
+  // Normal vector to the center line (perpendicular to path)
+  const Eigen::Vector2d normal = {-d_center(1), d_center(0)};
+  const double path_heading = std::atan2(d_center(1), d_center(0));
 
-  const Eigen::Vector2d pos_outer = pos_center + n_left * tan_center;
-  const Eigen::Vector2d pos_inner = pos_center + n_right * tan_center;
+  // Inner and outer track boundary given left and right width of track
+  const double n_left = track.getNLeft(s);    // Positive (usually)
+  const double n_right = track.getNRight(s);  // Negative (usually)
 
-  // Define track Jacobian as Perpendicular vector
+  // Alignment of the car with the path
+  const double heading_error = std::atan2(std::sin(x.phi - path_heading),
+                                          std::cos(x.phi - path_heading));
+
+  const double cos_mu = std::cos(heading_error);
+  const double sin_mu = std::sin(heading_error);
+
+  // Projected car size onto the track normal
+  const double projected_size =
+      param_.car_w * cos_mu + param_.car_l * std::fabs(sin_mu);
+  const double d_projected_size =
+      -param_.car_w * sin_mu +
+      param_.car_l * cos_mu * (heading_error > 0 ? 1.0 : -1.0);
+
+  const Eigen::Vector2d pos_outer =
+      pos_center + (n_left - 0.5 * projected_size) * normal;
+  const Eigen::Vector2d pos_inner =
+      pos_center + (n_right + 0.5 * projected_size) * normal;
+
+  // Compute boundaries for the Taylor expansion
+  // dl <= C*x <= du
+  const Eigen::Vector2d car_pos = {x.X, x.Y};
+  const double current_proj = normal.dot(car_pos);
+
+  const double track_constraint_lower = normal.dot(pos_inner) - current_proj;
+  const double track_constraint_upper = normal.dot(pos_outer) - current_proj;
+
+  // Define track Jacobian (direction of the constraint)
   C_i_MPC C_track_constraint = C_i_MPC::Zero();
-  C_track_constraint(0, 0) = tan_center(0);
-  C_track_constraint(0, 1) = tan_center(1);
-  // Compute bounds
-  const double track_constraint_lower = tan_center(0) * pos_inner(0) +
-                                        tan_center(1) * pos_inner(1) -
-                                        C_track_constraint * stateToVector(x);
-  const double track_constraint_upper = tan_center(0) * pos_outer(0) +
-                                        tan_center(1) * pos_outer(1) -
-                                        C_track_constraint * stateToVector(x);
+  C_track_constraint(0, si_index.X) = normal(0);
+  C_track_constraint(0, si_index.Y) = normal(1);
+
+  // Add phi dependency to Jacobian based on which bound is closer
+  if (std::fabs(track_constraint_lower) < std::fabs(track_constraint_upper)) {
+    C_track_constraint(0, si_index.phi) = -0.5 * d_projected_size;
+  } else {
+    C_track_constraint(0, si_index.phi) = 0.5 * d_projected_size;
+  }
 
   return {C_track_constraint, track_constraint_lower, track_constraint_upper};
 }

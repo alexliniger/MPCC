@@ -81,7 +81,6 @@ int main() {
   std::cout << "max nmpc time " << max_time << std::endl;
 
   plotter.plotRun(log, track_xy);
-  // plotter.plotSim(log,track_xy);
 
   return 0;
 }

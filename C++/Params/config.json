@@ -1,5 +1,5 @@
 {
-  "n_sqp": 4,
+  "n_sqp": 2,
   "n_reset": 2,
   "sqp_mixing": 0.9,
   "n_sim": 2000,

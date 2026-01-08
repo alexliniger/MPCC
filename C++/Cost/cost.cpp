@@ -206,10 +206,13 @@ CostMatrix Cost::getHeadingCost(const BoostSplines &track, const State &x,
   double theta_ref = atan2(dy_ref, dx_ref);
   theta_ref += 2.0 * PI * std::round((x.phi - theta_ref) / (2.0 * PI));
 
+  const double q_mu =
+      k < N ? cost_param_.q_mu : cost_param_.q_mu_N_mult * cost_param_.q_mu;
+
   Q_MPC Q_heading_cost = Q_MPC::Zero();
-  Q_heading_cost(si_index.phi, si_index.phi) = 2.0 * cost_param_.q_mu;
+  Q_heading_cost(si_index.phi, si_index.phi) = 2.0 * q_mu;
   q_MPC q_heading_cost = q_MPC::Zero();
-  q_heading_cost(si_index.phi) = -2.0 * cost_param_.q_mu * theta_ref;
+  q_heading_cost(si_index.phi) = -2.0 * q_mu * theta_ref;
 
   return {Q_heading_cost, R_MPC::Zero(), S_MPC::Zero(), q_heading_cost,
           r_MPC::Zero(),  Z_MPC::Zero(), z_MPC::Zero()};

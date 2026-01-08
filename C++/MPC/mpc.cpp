@@ -160,8 +160,6 @@ void MPC::updateInitialGuess(const State &x0) {
   unwrapInitialGuess();
 }
 
-// alternatively OptVariables MPC::unwrapInitialGuess(const OptVariables
-// &initial_guess)
 void MPC::unwrapInitialGuess() {
   double L = track_.getLength();
   for (int i = 1; i <= N; i++) {
@@ -226,7 +224,7 @@ MPCReturn MPC::runMPC(const State &x0) {
   auto t1 = std::chrono::high_resolution_clock::now();
   int solver_status = -1;
   State x_mpc = x0;
-  x_mpc.s = track_.projectOnSpline(x_mpc);
+  // x_mpc.s = track_.projectOnSpline(x_mpc);
   x_mpc.unwrap(track_.getLength());
   if (valid_initial_guess_)
     updateInitialGuess(x_mpc);
@@ -256,6 +254,7 @@ MPCReturn MPC::runMPC(const State &x0) {
 
   if (n_non_solves_ >= n_reset_) {
     valid_initial_guess_ = false;
+    n_non_solves_ = 0;
   }
 
   auto t2 = std::chrono::high_resolution_clock::now();
@@ -266,9 +265,6 @@ MPCReturn MPC::runMPC(const State &x0) {
   return {initial_guess_[0].uk, initial_guess_, time_nmpc};
 }
 
-// void MPC::setTrack(const Eigen::VectorXd &X, const Eigen::VectorXd &Y){
-//     track_.gen2DSpline(X,Y);
-// }
 void MPC::setTrack(const TrackFull &track) {
   track_.genSplines(track);
 }
