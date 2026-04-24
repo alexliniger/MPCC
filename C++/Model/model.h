@@ -33,38 +33,6 @@ struct LinModelMatrix {
   g_MPC g;
 };
 
-struct TireForces {
-  const double F_y;
-  const double F_x;
-};
-
-struct NormalForces {
-  const double F_N_front;
-  const double F_N_rear;
-};
-
-struct TireForcesDerivatives {
-  const double dF_y_vx;
-  const double dF_y_vy;
-  const double dF_y_r;
-  const double dF_y_D;
-  const double dF_y_delta;
-
-  const double dF_x_vx;
-  const double dF_x_vy;
-  const double dF_x_r;
-  const double dF_x_D;
-  const double dF_x_delta;
-};
-
-struct FrictionForceDerivatives {
-  const double dF_f_vx;
-  const double dF_f_vy;
-  const double dF_f_r;
-  const double dF_f_D;
-  const double dF_f_delta;
-};
-
 class Model {
  public:
   StateVector getF(const State &x, const Input &u) const;

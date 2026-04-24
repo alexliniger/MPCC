@@ -54,19 +54,19 @@ def interpolate_track(path, json_file):
     # are interpolated.
     track_uncertainty = 0.025  # standard deviation of track points in m
     w = 1 / track_uncertainty * np.ones(len(x))
-    tck, u = splprep([x, y], s=len(x), w=w)
+    tck, u = splprep([x, y], s=len(x), w=w, per=True)
 
     # Perform 2D interpolation for outer line
     x_outer = np.array(track["X_o"])
     y_outer = np.array(track["Y_o"])
     w = 1 / track_uncertainty * np.ones(len(x_outer))
-    tck_outer, u_outer = splprep([x_outer, y_outer], s=len(x_outer), w=w)
+    tck_outer, u_outer = splprep([x_outer, y_outer], s=len(x_outer), per=True, w=w)
 
-    # Perform 2D interpolation for outer line
+    # Perform 2D interpolation for inner line
     x_inner = np.array(track["X_i"])
     y_inner = np.array(track["Y_i"])
     w = 1 / track_uncertainty * np.ones(len(x_inner))
-    tck_inner, u_innerr = splprep([x_inner, y_inner], s=len(x_inner), w=w)
+    tck_inner, u_inner = splprep([x_inner, y_inner], s=len(x_inner), per=True, w=w)
 
     # Generate points for interpolation
     n_elements = 1000
@@ -160,23 +160,34 @@ def interpolate_track(path, json_file):
 
     ax.axis("equal")
     ax.legend()
+    fig.savefig(os.path.join(path, "track_layout.png"))
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(s_metric, -n_inner)
-    ax.plot(s_metric, n_outer)
+    ax.plot(s_metric, -n_inner, label="Inner")
+    ax.plot(s_metric, n_outer, label="Outer")
+    ax.set_xlabel("s [m]")
+    ax.set_ylabel("n [m]")
+    ax.legend()
+    fig.savefig(os.path.join(path, "track_width.png"))
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(s_metric, curvature)
+    ax.set_xlabel("s [m]")
+    ax.set_ylabel("Curvature [1/m]")
+    fig.savefig(os.path.join(path, "track_curvature.png"))
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(s_metric, safe_speed)
+    ax.set_xlabel("s [m]")
+    ax.set_ylabel("Safe Speed [m/s]")
+    fig.savefig(os.path.join(path, "track_safe_speed.png"))
 
     # Display the plot
     plt.show()
 
 
 # Call the function with the JSON file path
-interpolate_track(path="C++/Params/", json_file="track.json")
+interpolate_track(path="../Params/", json_file="track.json")

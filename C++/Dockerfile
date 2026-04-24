@@ -3,7 +3,7 @@ FROM ubuntu:24.04
 
 # Arguments for non-root user
 ARG USERNAME=devuser
-ARG USER_UID=1001
+ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
 # Set environment variables
@@ -40,15 +40,19 @@ RUN pip install --no-cache-dir \
     gitman \
     numpy \
     matplotlib \
-    scipy
+    scipy \
+    && ln -s /opt/venv/bin/gitman /usr/local/bin/gitman \
+    && ln -s /opt/venv/bin/pre-commit /usr/local/bin/pre-commit
 
 # Copy Gitman config and install dependencies
 
 
 
 # Setup non-root user
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+# Ubuntu 24.04 comes with a default 'ubuntu' user (UID 1000). We rename it to USERNAME.
+RUN usermod -l $USERNAME ubuntu \
+    && usermod -d /home/$USERNAME -m $USERNAME \
+    && groupmod -n $USERNAME ubuntu \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
@@ -58,7 +62,7 @@ RUN chown -R $USERNAME:$USERNAME /app && \
     chown -R $USERNAME:$USERNAME $VIRTUAL_ENV
 
 # Switch to non-root user
-USER $USERNAME
+# USER $USERNAME
 
 # Configure Git to avoid "dubious ownership" errors for the mounted volume
 RUN git config --global --add safe.directory /app/MPCC

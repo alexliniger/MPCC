@@ -34,6 +34,7 @@ if(NOT BUILD_ONLY_DEPS)
             Constraints/bounds.cpp
             Cost/cost.cpp
             Model/model.cpp
+            Model/sim_model.cpp
             Model/integrator.cpp
             MPC/mpc.cpp
             Config/track.cpp

@@ -12,5 +12,6 @@
   "bounds_path": "Params/bounds.json",
   "track_path": "Params/track_processed.json",
   "normalization_path": "Params/normalization.json",
-  "adcodegen_path": "Generated"
+  "adcodegen_path": "Generated",
+  "use_sim_model": true
 }

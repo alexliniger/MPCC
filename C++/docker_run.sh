@@ -8,7 +8,7 @@ CONTAINER_CMD="
 cd C++
 if [ ! -f 'External/json/CMakeLists.txt' ]; then
     echo '--- Initializing dependencies with gitman (this may take a moment) ---'
-    gitman install --force
+    sudo -u devuser gitman install --force
 else
     echo '--- Dependencies detected, skipping initialization ---'
 fi
@@ -16,14 +16,14 @@ cd ..
 
 if [ ! -f '.git/hooks/pre-commit' ]; then
     echo '--- Installing pre-commit hooks ---'
-    pre-commit install --config C++/.pre-commit-config.yaml > /dev/null 2>&1
+    sudo -u devuser pre-commit install --config C++/.pre-commit-config.yaml > /dev/null 2>&1
 fi
 
 echo '--- Interactive shell ready ---'
 echo 'Hint: You are in the C++ subdirectory. Repository root is at ..'
 echo ''
 cd C++
-exec /bin/bash
+exec sudo -u devuser /bin/bash
 "
 
 # Handle SSH_AUTH_SOCK for Mac/Linux

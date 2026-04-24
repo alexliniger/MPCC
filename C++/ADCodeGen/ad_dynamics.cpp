@@ -25,8 +25,8 @@ ADDynamics::ADDynamics() : Ts_(1.0) {
   std::cout << "default constructor, not everything is initialized properly"
             << std::endl;
 }
-ADDynamics::ADDynamics(double Ts, const std::string &path,
-                       const std::string &outputPath)
+ADDynamics::ADDynamics(double Ts, const std::string& path,
+                       const std::string& outputPath)
     : Ts_(Ts), param_(path), outputPath_(outputPath) {
   if (outputPath_.back() != '/' && outputPath_.back() != '\\') {
     outputPath_ += "/";

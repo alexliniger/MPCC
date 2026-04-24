@@ -30,6 +30,6 @@
   "sc_quad_tire_r": 100.0,
 
   "sc_lin_track": 10.0,
-  "sc_lin_tire_f": 10.0,
-  "sc_lin_tire_r": 10.0
+  "sc_lin_tire_f": 1.0,
+  "sc_lin_tire_r": 1.0
 }

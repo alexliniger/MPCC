@@ -174,9 +174,28 @@ int main(int argc, char **argv) {
   json jsonConfig;
   iConfig >> jsonConfig;
 
-  if (modelPath.empty()) modelPath = resolvePath("model.json");
+  if (modelPath.empty()) {
+    if (jsonConfig.contains("model_path")) {
+      std::string pathInConfig = jsonConfig["model_path"];
+      if (std::ifstream(pathInConfig).good()) {
+        modelPath = pathInConfig;
+      } else {
+        // If path starts with "Params/", strip it to use resolvePath helper
+        std::string prefix = "Params/";
+        if (pathInConfig.rfind(prefix, 0) == 0) {
+          modelPath = resolvePath(pathInConfig.substr(prefix.length()));
+        } else {
+          // Try resolving as given
+          modelPath = resolvePath(pathInConfig);
+        }
+      }
+    } else {
+      modelPath = resolvePath("model.json");
+    }
+  }
+
   if (modelPath.empty() || !std::ifstream(modelPath).good()) {
-    std::cerr << "Error: Could not find model.json." << std::endl;
+    std::cerr << "Error: Could not find model file: " << modelPath << std::endl;
     return 1;
   }
 

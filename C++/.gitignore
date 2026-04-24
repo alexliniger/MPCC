@@ -8,3 +8,6 @@ build_docker/
 .DS_Store
 *.swp
 pre_commit_output.txt
+__pycache__/
+*.png
+LTO/lto_report.html

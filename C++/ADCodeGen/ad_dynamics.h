@@ -35,7 +35,7 @@ enum class IntegratorType { RK4, ForwardEuler };
 class ADDynamics {
  public:
   ADDynamics();
-  ADDynamics(double Ts, const std::string &path, const std::string &outputPath);
+  ADDynamics(double Ts, const std::string& path, const std::string& outputPath);
   void genLibraryIntegrator(IntegratorType type, int n_steps);
   void genLibraryGetF();
   void genLibraryTireFront();
