@@ -1,0 +1,32 @@
+
+{
+  "qC" : 0.1,
+  "qL" : 500.0,
+  "qVs" : 0.02,
+
+  "qMu": 0.001,
+
+  "qR" : 1E-5,
+
+  "qBeta" : 1E-2,
+  "betaKin": 0,
+
+  "rD" : 1E-6,
+  "rDelta" : 1E-6,
+  "rVs" : 1E-6,
+
+  "rdD" : 1E-4,
+  "rdDelta" : 5E-3,
+  "rdVs" : 1E-5,
+
+  "qCNmult": 10,
+  "qRNmult": 10,
+
+  "sc_quad_track": 100.0,
+  "sc_quad_tire": 1.0,
+  "sc_quad_alpha": 10.0,
+
+  "sc_lin_track": 1.0,
+  "sc_lin_tire": 0.1,
+  "sc_lin_alpha": 0.1
+}
