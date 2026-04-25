@@ -67,10 +67,17 @@ int main() {
   std::cout << "x0 initialized" << std::endl;
   mpcc::ArcLengthSpline track_spline(json_paths);
   track_spline.gen2DSpline(track_xy.X, track_xy.Y);
-  std::unique_ptr<mpcc::ISimModel> sim_plant =
-      std::make_unique<mpcc::BicycleSimModel>(jsonConfig["Ts"],
-                                              json_paths.param_path);
-  std::cout << "SimModel initialized" << std::endl;
+  std::unique_ptr<mpcc::ISimModel> sim_plant;
+  if (jsonConfig.contains("sim_model_type") &&
+      jsonConfig["sim_model_type"] == "four_wheel") {
+    sim_plant = std::make_unique<mpcc::FourWheelSimModel>(
+        jsonConfig["Ts"], json_paths.param_path);
+    std::cout << "FourWheelSimModel initialized" << std::endl;
+  } else {
+    sim_plant = std::make_unique<mpcc::BicycleSimModel>(jsonConfig["Ts"],
+                                                        json_paths.param_path);
+    std::cout << "BicycleSimModel initialized" << std::endl;
+  }
 
   // Initialize SimState from initial State
   sim_plant->initialize(x0);

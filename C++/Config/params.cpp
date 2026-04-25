@@ -59,6 +59,9 @@ Param::Param(std::string file) {
   Iz = jsonModel["Iz"];
   lf = jsonModel["lf"];
   lr = jsonModel["lr"];
+  tf = jsonModel["tf"];
+  tr = jsonModel["tr"];
+  h_cg = jsonModel["h_cg"];
 
   car_l = jsonModel["car_l"];
   car_w = jsonModel["car_w"];

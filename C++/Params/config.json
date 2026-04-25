@@ -13,5 +13,6 @@
   "track_path": "Params/track_processed.json",
   "normalization_path": "Params/normalization.json",
   "adcodegen_path": "Generated",
-  "use_sim_model": true
+  "use_sim_model": true,
+  "sim_model_type": "four_wheel"
 }

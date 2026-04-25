@@ -97,6 +97,71 @@ class BicycleSimModel : public ISimModel {
   SimState getDerivative(const SimState& s, const Input& u) const;
 };
 
+// -----------------------------------------------------------------------------
+// Four Wheel Model Implementation
+// -----------------------------------------------------------------------------
+class FourWheelSimModel : public ISimModel {
+ public:
+  FourWheelSimModel(double Ts, const std::string& param_path);
+
+  void initialize(const State& x) override;
+  void step(const Input& input, double dt) override;
+
+  double getX() const override {
+    return x_sim_.X;
+  }
+  double getY() const override {
+    return x_sim_.Y;
+  }
+
+  State getMPCCState(double s_approx, double vs) const override;
+
+ private:
+  struct NormalForces {
+    double F_N_fl;
+    double F_N_fr;
+    double F_N_rl;
+    double F_N_rr;
+  };
+
+  struct AeroForces {
+    double F_downforce_f;
+    double F_downforce_r;
+    double F_drag;
+  };
+
+  struct SlipAngles {
+    double alpha_fl;
+    double alpha_fr;
+    double alpha_rl;
+    double alpha_rr;
+  };
+
+  struct TireForces {
+    double Fy_fl;
+    double Fy_fr;
+    double Fy_rl;
+    double Fy_rr;
+    double Fx_fl;
+    double Fx_fr;
+    double Fx_rl;
+    double Fx_rr;
+  };
+
+  Param param_;
+  double Ts_;
+  SimState x_sim_;  // Internal state
+
+  AeroForces getAeroForces(const SimState& state) const;
+  NormalForces getNormalForces(const SimState& state, const AeroForces& aero,
+                               double ax, double ay) const;
+  SlipAngles getSlipAngles(const SimState& state, double delta) const;
+  TireForces getTireForces(const SimState& state, const SlipAngles& alpha,
+                           const NormalForces& F_N, double D, double B) const;
+
+  SimState getDerivative(const SimState& s, const Input& u) const;
+};
+
 }  // namespace mpcc
 
 #endif  // MPCC_SIM_MODEL_H

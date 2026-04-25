@@ -54,6 +54,9 @@ class Param {
   double Iz;
   double lf;
   double lr;
+  double tf;
+  double tr;
+  double h_cg;
 
   double car_l;
   double car_w;
